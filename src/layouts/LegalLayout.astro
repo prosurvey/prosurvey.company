@@ -1,0 +1,73 @@
+---
+import Footer from "../components/Footer.astro";
+import Header from "../components/Header.astro";
+import BaseLayout from "./BaseLayout.astro";
+import { loadHomeContent } from "../lib/content";
+
+type Props = {
+  title: string;
+  description?: string;
+};
+
+const { title, description } = Astro.props;
+const home = await loadHomeContent();
+---
+
+<BaseLayout
+  lang={home.site.lang}
+  title={`${title} — ${home.site.brandName}`}
+  description={description ?? title}
+  keywords={home.site.keywords}
+  faviconHref={home.assets.favicon}
+  theme={home.theme}
+>
+  <Header
+    logoHref={home.assets.logo}
+    logoAlt={home.site.brandName}
+    navItems={home.nav.header.items}
+    cta={home.nav.header.cta}
+  />
+
+  <main class="section section--light legal">
+    <div class="container legal__inner">
+      <h1 class="legal__title">{title}</h1>
+      <article class="legal__content">
+        <slot />
+      </article>
+    </div>
+  </main>
+
+  <Footer navItems={home.nav.header.items} links={home.footer.links} copyright={home.footer.copyright} />
+</BaseLayout>
+
+<style>
+  .legal__inner {
+    max-width: 920px;
+  }
+
+  .legal__title {
+    margin: 0 0 18px;
+    font-size: clamp(28px, 3.2vw, 44px);
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+  }
+
+  .legal__content :global(h2) {
+    margin: 28px 0 12px;
+    font-size: 22px;
+    letter-spacing: -0.02em;
+  }
+
+  .legal__content :global(p) {
+    margin: 0 0 12px;
+    color: rgba(16, 17, 18, 0.85);
+    line-height: 1.7;
+  }
+
+  .legal__content :global(ul),
+  .legal__content :global(ol) {
+    margin: 10px 0 14px 22px;
+    color: rgba(16, 17, 18, 0.85);
+    line-height: 1.65;
+  }
+</style>

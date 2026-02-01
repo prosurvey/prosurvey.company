@@ -1,0 +1,157 @@
+site:
+  lang: ru
+  title: proизыскания
+  brandName: ПроИзыскания
+  description: Инженерные изыскания
+  keywords: инженерные изыскания, изыскания москва, изыскания мо, изыскания московская область, геологические изыскания
+
+assets:
+  favicon: /images/favicon.png
+  logo: /images/logo.png
+  heroImage: /images/hero.jpeg
+  formImage: /images/form-bg.jpeg
+  contactsImage: /images/contacts-bg.png
+  certifications:
+    - image: /images/cert-nopriz.png
+      title: НОПРИЗ
+    - image: /images/cert-iso9001.png
+      title: Сертификат ISO 9001
+
+theme:
+  accent: "#a47764"
+  bgDark: "#101112"
+  bgLight: "#F8F9FA"
+
+nav:
+  header:
+    items:
+      - text: О нас
+        href: "/#about"
+      - text: Наши услуги
+        href: "/#services"
+      - text: Контакты
+        href: "/#contacts"
+    cta:
+      text: Заказать
+      href: "/#request"
+
+sections:
+  hero:
+    title: Комплексные инженерные изыскания для строительства
+    text: Профессионализм и контроль качества на каждом этапе проекта — ваш надёжный выбор.
+    buttons:
+      - text: Услуги
+        href: "/#services"
+      - text: Консультация
+        href: "/#request"
+
+  about:
+    id: about
+    eyebrow: Наша команда
+    title: Точность. Надёжность. Результат.
+    text: "— это опытные геологи, экологи, геодезисты и другие специалисты, объединённые стремлением к результату и высоким стандартам качества на каждом этапе работ."
+    stats:
+      - value: 8 лет
+        label: опыта работы в сфере изысканий
+      - value: 130+
+        label: успешно реализованных проектов
+      - value: 100%
+        label: проектов в экспертизе с положительным результатом
+    note: |
+      Мы объединяем профессионализм, внимание к деталям и ответственность за результат.
+      С нами вы получаете не просто услуги по изысканиям, а надежный фундамент для будущего проекта.
+
+  services:
+    id: services
+    title: Глубже, чем просто услуги
+    subtitle: |
+      Вам предлагается
+      полный комплекс инженерных исследований,
+      включая техническое сопровождение
+      на всех стадиях проекта.
+    main:
+      - Инженерно-геологические изыскания
+      - Инженерно-геодезические изыскания
+      - Инженерно-экологические изыскания
+      - Инженерно-гидрометеорологические изыскания
+      - Геотехнический мониторинг
+      - Дендрологические исследования
+    other:
+      - Бурение скважин
+      - Отбор проб грунтов и природных вод
+      - Лабораторные исследования
+      - Составление технического отчёта
+      - Сопровождение в Экспертизе
+      - Разработка спец. разделов
+      - Освидетельствование грунтов основания котлована
+
+  request:
+    id: request
+    title: Готовы начать Ваш проект
+    description: Оставьте заявку, и наши специалисты проконсультируют Вас по всем вопросам инженерных изысканий
+    submitText: Отправить
+    fields:
+      name:
+        label: Имя*
+        required: true
+      phone:
+        label: "+7"
+        required: false
+      email:
+        label: E-mail*
+        required: true
+      message:
+        label: Сообщение
+        required: false
+      consent:
+        label: Я внимательно прочитал Политику Конфиденциальности и даю свое Согласие на обработку персональных данных
+        required: true
+    consentLinks:
+      privacy:
+        text: Политику конфиденциальности
+        href: /privacypol
+      terms:
+        prefix: Нажимая на кнопку «Отправить», вы соглашаетесь с
+        text: пользовательским соглашением
+        href: /termofuse
+
+  certifications:
+    id: certifications
+    title: Лицензии и сертификация
+
+  contacts:
+    id: contacts
+    title: Контакты
+    email: mail@prosurvey.company
+    phoneText: "+7(995)657-27-17"
+    phoneHref: "+79956572717"
+    hours: "9:00-19:00 (MSK) пн-пт"
+    address: "121552, г. Москва, ул. Ярцевская, 27к1, 211"
+    socials:
+      - type: mail
+        href: "mailto:mail@prosurvey.company"
+        label: Email
+      - type: telegram
+        href: "https://t.me/aff_in"
+        label: Telegram
+      - type: whatsapp
+        href: "https://wa.me/+79168652271"
+        label: WhatsApp
+
+footer:
+  copyright: "©️2025 ООО «ПроИзыскания». Все права защищены"
+  links:
+    - text: Политика конфиденциальности
+      href: /privacypol
+    - text: Условия использования
+      href: /termofuse
+
+cookie:
+  enabled: true
+  text: |
+    Этот сайт использует файлы «cookie». Вы можете запретить обработку cookies в настройках браузера.
+    Продолжая пользоваться сайтом, вы даете согласие на использование файлов «cookie».
+    О том, как и для чего мы обрабатываем cookies см. в политике конфиденциальности.
+  link:
+    text: Подробнее
+    href: /privacypol

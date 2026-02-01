@@ -1,0 +1,59 @@
+---
+type Props = {
+  id: string;
+  title: string;
+  items: Array<{ imageHref: string; title: string }>;
+};
+
+const { id, title, items } = Astro.props;
+---
+
+<section id={id} class="section section--dark">
+  <div class="container certs">
+    <h2 class="h2">{title}</h2>
+
+    <div class="certs__grid">
+      {items.map((item) => (
+        <div class="certs__card card">
+          <img class="certs__image" src={item.imageHref} alt={item.title} loading="lazy" decoding="async" />
+          <div class="certs__title">{item.title}</div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .certs__grid {
+    margin-top: 22px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .certs__card {
+    padding: 18px;
+    display: grid;
+    justify-items: center;
+    gap: 12px;
+    text-align: center;
+  }
+
+  .certs__image {
+    width: min(220px, 65vw);
+    height: auto;
+    filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.25));
+  }
+
+  .certs__title {
+    color: rgba(248, 249, 250, 0.9);
+    font-size: 16px;
+  }
+
+  @media (max-width: 860px) {
+    .certs__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+

@@ -1,0 +1,251 @@
+---
+type Props = {
+  id: string;
+  title: string;
+  description: string;
+  imageHref: string;
+  submitText: string;
+  fields: {
+    name: { label: string; required: boolean };
+    phone: { label: string; required: boolean };
+    email: { label: string; required: boolean };
+    message: { label: string; required: boolean };
+    consent: { label: string; required: boolean };
+  };
+  consentLinks: {
+    privacy: { text: string; href: string };
+    terms: { prefix: string; text: string; href: string };
+  };
+};
+
+const { id, title, description, imageHref, submitText, fields, consentLinks } = Astro.props;
+
+const consentMarker = "Политику Конфиденциальности";
+const consentParts = fields.consent.label.includes(consentMarker)
+  ? fields.consent.label.split(consentMarker)
+  : null;
+---
+
+<section id={id} class="section request">
+  <img class="request__bg" src={imageHref} alt="" loading="lazy" decoding="async" />
+  <div class="request__overlay"></div>
+  <div class="container request__inner">
+    <div class="request__copy">
+      <p class="eyebrow">Заявка</p>
+      <h2 class="h2">{title}</h2>
+      <p class="lead">{description}</p>
+    </div>
+
+    <form class="request__form card" data-request-form method="post" action="#">
+      <div class="request__grid">
+        <label class="field">
+          <span class="field__label">{fields.name.label}</span>
+          <input class="field__input" type="text" name="name" autocomplete="name" required={fields.name.required} />
+        </label>
+
+        <label class="field">
+          <span class="field__label">{fields.phone.label}</span>
+          <input class="field__input" type="tel" name="phone" autocomplete="tel" />
+        </label>
+
+        <label class="field field--full">
+          <span class="field__label">{fields.email.label}</span>
+          <input class="field__input" type="email" name="email" autocomplete="email" required={fields.email.required} />
+        </label>
+
+        <label class="field field--full">
+          <span class="field__label">{fields.message.label}</span>
+          <textarea class="field__textarea" name="message" rows="4"></textarea>
+        </label>
+
+        <label class="consent field--full">
+          <input class="consent__checkbox" type="checkbox" name="consent" required={fields.consent.required} />
+          <span class="consent__text">
+            {consentParts ? (
+              <>
+                {consentParts[0]}
+                <a class="consent__link" href={consentLinks.privacy.href}>{consentLinks.privacy.text}</a>
+                {consentParts[1]}
+              </>
+            ) : (
+              <>
+                {fields.consent.label}{" "}
+                <a class="consent__link" href={consentLinks.privacy.href}>{consentLinks.privacy.text}</a>
+              </>
+            )}
+          </span>
+        </label>
+      </div>
+
+      <div class="request__actions">
+        <button class="btn btn-primary request__submit" type="submit">{submitText}</button>
+        <p class="request__legal">
+          {consentLinks.terms.prefix}{" "}
+          <a class="request__legal-link" href={consentLinks.terms.href}>{consentLinks.terms.text}</a>
+        </p>
+        <p class="request__status" data-request-status role="status" aria-live="polite"></p>
+      </div>
+    </form>
+  </div>
+
+  <script is:inline>
+    {String.raw`
+      const form = document.querySelector('[data-request-form]');
+      const statusEl = document.querySelector('[data-request-status]');
+      if (form && statusEl) {
+        form.addEventListener('submit', (event) => {
+          event.preventDefault();
+          statusEl.textContent = 'Форма пока в режиме заглушки. Мы подключим CRM следующим шагом.';
+        });
+      }
+    `}
+  </script>
+</section>
+
+<style>
+  .request {
+    position: relative;
+    background: var(--bg-dark);
+    color: var(--text-light);
+    overflow: hidden;
+  }
+
+  .request__bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: saturate(0.85) contrast(1.05);
+    transform: scale(1.02);
+  }
+
+  .request__overlay {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(800px 400px at 80% 20%, rgba(164, 119, 100, 0.28), transparent 60%),
+      linear-gradient(90deg, rgba(16, 17, 18, 0.92), rgba(16, 17, 18, 0.55));
+  }
+
+  .request__inner {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 0.95fr 1.05fr;
+    gap: 28px;
+    align-items: start;
+  }
+
+  .request__copy .eyebrow {
+    color: var(--muted-on-dark);
+  }
+
+  .request__form {
+    padding: 18px;
+    border-color: var(--border-on-dark);
+  }
+
+  .request__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .field {
+    display: grid;
+    gap: 8px;
+  }
+
+  .field--full {
+    grid-column: 1 / -1;
+  }
+
+  .field__label {
+    font-size: 14px;
+    color: rgba(248, 249, 250, 0.85);
+  }
+
+  .field__input,
+  .field__textarea {
+    width: 100%;
+    border-radius: 12px;
+    border: 1px solid rgba(248, 249, 250, 0.18);
+    background: rgba(16, 17, 18, 0.4);
+    color: var(--text-light);
+    padding: 12px 12px;
+    font: inherit;
+    outline: none;
+  }
+
+  .field__textarea {
+    resize: vertical;
+    min-height: 110px;
+  }
+
+  .field__input:focus,
+  .field__textarea:focus {
+    border-color: rgba(164, 119, 100, 0.75);
+    box-shadow: 0 0 0 4px rgba(164, 119, 100, 0.18);
+  }
+
+  .consent {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding-top: 4px;
+  }
+
+  .consent__checkbox {
+    margin-top: 4px;
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent);
+  }
+
+  .consent__text {
+    color: rgba(248, 249, 250, 0.85);
+    line-height: 1.35;
+    font-size: 14px;
+  }
+
+  .consent__link {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .request__actions {
+    margin-top: 14px;
+    display: grid;
+    gap: 10px;
+  }
+
+  .request__submit {
+    width: 100%;
+  }
+
+  .request__legal {
+    margin: 0;
+    color: var(--muted-on-dark);
+    font-size: 14px;
+    line-height: 1.35;
+  }
+
+  .request__legal-link {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .request__status {
+    margin: 0;
+    color: rgba(248, 249, 250, 0.92);
+    font-size: 14px;
+  }
+
+  @media (max-width: 980px) {
+    .request__inner {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+

@@ -1,0 +1,93 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import CookieBanner from "../components/CookieBanner.astro";
+import Footer from "../components/Footer.astro";
+import Header from "../components/Header.astro";
+import About from "../components/sections/About.astro";
+import Certifications from "../components/sections/Certifications.astro";
+import Contacts from "../components/sections/Contacts.astro";
+import Hero from "../components/sections/Hero.astro";
+import Request from "../components/sections/Request.astro";
+import Services from "../components/sections/Services.astro";
+import { loadHomeContent } from "../lib/content";
+
+const content = await loadHomeContent();
+---
+
+<BaseLayout
+  lang={content.site.lang}
+  title={content.site.title}
+  description={content.site.description}
+  keywords={content.site.keywords}
+  faviconHref={content.assets.favicon}
+  theme={content.theme}
+>
+  <Header
+    logoHref={content.assets.logo}
+    logoAlt={content.site.brandName}
+    navItems={content.nav.header.items}
+    cta={content.nav.header.cta}
+  />
+
+  <main id="top">
+    <Hero
+      title={content.sections.hero.title}
+      text={content.sections.hero.text}
+      imageHref={content.assets.heroImage}
+      buttons={content.sections.hero.buttons}
+    />
+
+    <About
+      id={content.sections.about.id}
+      eyebrow={content.sections.about.eyebrow}
+      title={content.sections.about.title}
+      text={content.sections.about.text}
+      stats={content.sections.about.stats}
+      note={content.sections.about.note}
+    />
+
+    <Services
+      id={content.sections.services.id}
+      title={content.sections.services.title}
+      subtitle={content.sections.services.subtitle}
+      main={content.sections.services.main}
+      other={content.sections.services.other}
+    />
+
+    <Request
+      id={content.sections.request.id}
+      title={content.sections.request.title}
+      description={content.sections.request.description}
+      imageHref={content.assets.formImage}
+      submitText={content.sections.request.submitText}
+      fields={content.sections.request.fields}
+      consentLinks={content.sections.request.consentLinks}
+    />
+
+    <Certifications
+      id={content.sections.certifications.id}
+      title={content.sections.certifications.title}
+      items={content.assets.certifications.map((c) => ({ imageHref: c.image, title: c.title }))}
+    />
+
+    <Contacts
+      id={content.sections.contacts.id}
+      title={content.sections.contacts.title}
+      email={content.sections.contacts.email}
+      phoneText={content.sections.contacts.phoneText}
+      phoneHref={content.sections.contacts.phoneHref}
+      hours={content.sections.contacts.hours}
+      address={content.sections.contacts.address}
+      socials={content.sections.contacts.socials}
+      imageHref={content.assets.contactsImage}
+    />
+  </main>
+
+  <Footer
+    navItems={content.nav.header.items}
+    links={content.footer.links}
+    copyright={content.footer.copyright}
+  />
+
+  {content.cookie.enabled ? <CookieBanner text={content.cookie.text} link={content.cookie.link} /> : null}
+</BaseLayout>

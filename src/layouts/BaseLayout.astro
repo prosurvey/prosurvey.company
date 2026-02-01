@@ -1,0 +1,63 @@
+---
+import "../styles/global.css";
+
+type Props = {
+  lang: string;
+  title: string;
+  description: string;
+  keywords?: string;
+  faviconHref: string;
+  theme?: {
+    accent?: string;
+    bgDark?: string;
+    bgLight?: string;
+  };
+};
+
+const { lang, title, description, keywords, faviconHref, theme } = Astro.props;
+
+const themeStyle = [
+  theme?.accent ? `--accent: ${theme.accent}` : "",
+  theme?.bgDark ? `--bg-dark: ${theme.bgDark}` : "",
+  theme?.bgLight ? `--bg-light: ${theme.bgLight}` : "",
+]
+  .filter(Boolean)
+  .join(";");
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {keywords ? <meta name="keywords" content={keywords} /> : null}
+    <link rel="icon" type="image/png" href={faviconHref} />
+    <script is:inline>
+      {String.raw`
+        (() => {
+          try {
+            const prefersReduced = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+            if (prefersReduced) return;
+
+            const key = 'prosurvey_page_entered';
+            if (sessionStorage.getItem(key) === '1') return;
+
+            document.documentElement.classList.add('page-enter');
+            window.setTimeout(() => {
+              document.documentElement.classList.remove('page-enter');
+              sessionStorage.setItem(key, '1');
+            }, 520);
+          } catch {
+            // ignore
+          }
+        })();
+      `}
+    </script>
+  </head>
+  <body style={themeStyle || undefined}>
+    <slot />
+  </body>
+</html>

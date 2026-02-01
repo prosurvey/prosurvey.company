@@ -1,0 +1,83 @@
+---
+type Props = {
+  id: string;
+  eyebrow: string;
+  title: string;
+  text: string;
+  stats: Array<{ value: string; label: string }>;
+  note: string;
+};
+
+const { id, eyebrow, title, text, stats, note } = Astro.props;
+---
+
+<section id={id} class="section section--light">
+  <div class="container about">
+    <p class="eyebrow">{eyebrow}</p>
+    <h2 class="h2">{title}</h2>
+    <p class="lead about__text">{text}</p>
+
+    <div class="about__stats">
+      {stats.map((stat) => (
+        <div class="about__stat card">
+          <div class="about__stat-value">{stat.value}</div>
+          <div class="about__stat-label">{stat.label}</div>
+        </div>
+      ))}
+    </div>
+
+    <p class="about__note">{note}</p>
+  </div>
+</section>
+
+<style>
+  .about__text {
+    max-width: 920px;
+  }
+
+  .about__stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-top: 28px;
+  }
+
+  .about__stat {
+    padding: 18px 18px;
+    box-shadow: none;
+    background: #fff;
+    border-color: rgba(16, 17, 18, 0.08);
+  }
+
+  .about__stat-value {
+    font-size: 34px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 6px;
+  }
+
+  .about__stat-label {
+    color: var(--muted-on-light);
+    line-height: 1.4;
+  }
+
+  .about__note {
+    margin: 28px 0 0;
+    font-size: 18px;
+    line-height: 1.65;
+    white-space: pre-line;
+    color: rgba(16, 17, 18, 0.85);
+    max-width: 920px;
+  }
+
+  @media (max-width: 860px) {
+    .about__stats {
+      grid-template-columns: 1fr;
+    }
+
+    .about__stat-value {
+      font-size: 30px;
+    }
+  }
+</style>
+
