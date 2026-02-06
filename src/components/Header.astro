@@ -7,13 +7,14 @@ type Props = {
 };
 
 const { logoHref, logoAlt, navItems, cta } = Astro.props;
+const homeHref = import.meta.env.BASE_URL ?? "/";
 ---
 
 <header class="header">
   <div class="header__wrapper">
     <div class="header__content">
       <div class="header__group header__group--left">
-        <a class="header__logo" href="/">
+        <a class="header__logo" href={homeHref}>
           <img src={logoHref} alt={logoAlt} width="200" height="56" loading="eager" />
         </a>
 

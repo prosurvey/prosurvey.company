@@ -10,7 +10,7 @@ const enableInputTracking = () => {
     body.dataset.input = "pointer";
   };
 
-  const markKeyboard = (event: KeyboardEvent) => {
+  const markKeyboard = (event) => {
     if (event.key === "Tab" || event.key.startsWith("Arrow")) {
       body.dataset.input = "keyboard";
     }
@@ -22,7 +22,7 @@ const enableInputTracking = () => {
 
 const initGallery = () => {
   enableInputTracking();
-  const gallery = document.querySelector<HTMLElement>("#certs-gallery");
+  const gallery = document.querySelector("#certs-gallery");
 
   if (!gallery || gallery.dataset.pswpInitialized === "true") return;
   gallery.dataset.pswpInitialized = "true";
@@ -50,7 +50,7 @@ const initGallery = () => {
     }),
   });
 
-  const links = Array.from(gallery.querySelectorAll<HTMLAnchorElement>("a"));
+  const links = Array.from(gallery.querySelectorAll("a"));
   const slides = links.map((link) => ({
     src: link.dataset.pswpSrc || link.getAttribute("href") || "",
     width: Number(link.dataset.pswpWidth) || 0,
@@ -99,7 +99,7 @@ const initGallery = () => {
       html: "",
       onInit: (el, pswp) => {
         const updateCaption = () => {
-          const currSlideElement = pswp.currSlide?.data?.element as HTMLElement | undefined;
+          const currSlideElement = pswp.currSlide?.data?.element;
           const caption =
             currSlideElement?.dataset?.pswpCaption ||
             currSlideElement?.getAttribute("aria-label")?.replace("Открыть ", "") ||

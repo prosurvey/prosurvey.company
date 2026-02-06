@@ -184,6 +184,39 @@ export type HomeContent = z.infer<typeof homeContentSchema>;
 
 let cached: HomeContent | null = null;
 
+function normalizeBasePath(baseUrl: string): string {
+  const trimmed = baseUrl.trim();
+  if (!trimmed || trimmed === "/") return "";
+  const withLeadingSlash = trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
+  return withLeadingSlash.endsWith("/") ? withLeadingSlash.slice(0, -1) : withLeadingSlash;
+}
+
+function withBasePath(pathValue: string): string {
+  if (!pathValue.startsWith("/") || pathValue.startsWith("//")) return pathValue;
+  const basePath = normalizeBasePath(import.meta.env.BASE_URL ?? "/");
+  if (!basePath) return pathValue;
+  if (pathValue === "/") return `${basePath}/`;
+  return `${basePath}${pathValue}`;
+}
+
+function applyBasePathRecursively<T>(value: T): T {
+  if (typeof value === "string") {
+    return withBasePath(value) as T;
+  }
+
+  if (Array.isArray(value)) {
+    return value.map((item) => applyBasePathRecursively(item)) as T;
+  }
+
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>).map(([key, nestedValue]) => [key, applyBasePathRecursively(nestedValue)]),
+    ) as T;
+  }
+
+  return value;
+}
+
 function formatIssuePath(pathItems: Array<string | number>): string {
   if (pathItems.length === 0) return "(root)";
 
@@ -214,6 +247,6 @@ export async function loadHomeContent(): Promise<HomeContent> {
     throw new Error(`Invalid content file src/content/home.yml:\n${details}`);
   }
 
-  cached = validated.data;
+  cached = applyBasePathRecursively(validated.data);
   return cached;
 }

@@ -1,6 +1,5 @@
 ---
 import "photoswipe/style.css";
-import galleryScript from "../../scripts/certifications-gallery.ts?url";
 
 type Props = {
   id: string;
@@ -74,7 +73,9 @@ const { id, title, items } = Astro.props;
     ))}
   </div>
 
-  <script type="module" src={galleryScript}></script>
+  <script>
+    import "/src/scripts/certifications-gallery.js";
+  </script>
 </section>
 
 <style>
