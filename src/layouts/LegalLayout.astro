@@ -1,4 +1,5 @@
 ---
+import CookieBanner from "../components/CookieBanner.astro";
 import Footer from "../components/Footer.astro";
 import Header from "../components/Header.astro";
 import BaseLayout from "./BaseLayout.astro";
@@ -38,6 +39,8 @@ const home = await loadHomeContent();
   </main>
 
   <Footer navItems={home.nav.header.items} links={home.footer.links} copyright={home.footer.copyright} />
+
+  {home.cookie.enabled ? <CookieBanner text={home.cookie.text} acceptText={home.cookie.acceptText} link={home.cookie.link} /> : null}
 </BaseLayout>
 
 <style>
@@ -47,27 +50,83 @@ const home = await loadHomeContent();
 
   .legal__title {
     margin: 0 0 18px;
+    font-family: var(--font-display);
     font-size: clamp(28px, 3.2vw, 44px);
     line-height: 1.1;
     letter-spacing: -0.03em;
+    font-weight: 600;
+  }
+
+  .legal__content {
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border-on-light);
+    background: var(--surface-1);
+    box-shadow: var(--shadow-sm);
+    padding: clamp(18px, 3.2vw, 34px);
+    overflow-wrap: anywhere;
+  }
+
+  .legal__content :global(*) {
+    max-width: 100%;
+  }
+
+  .legal__content :global(p),
+  .legal__content :global(li) {
+    font-size: 16px;
+    line-height: 1.7;
   }
 
   .legal__content :global(h2) {
     margin: 28px 0 12px;
-    font-size: 22px;
+    font-family: var(--font-display);
+    font-size: clamp(20px, 2vw, 26px);
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+    font-weight: 600;
+  }
+
+  .legal__content :global(h3) {
+    margin: 20px 0 10px;
+    font-family: var(--font-display);
+    font-size: 18px;
     letter-spacing: -0.02em;
+    line-height: 1.2;
+    font-weight: 600;
   }
 
   .legal__content :global(p) {
     margin: 0 0 12px;
-    color: rgba(16, 17, 18, 0.85);
+    color: rgb(var(--text-dark-rgb) / 0.84);
     line-height: 1.7;
   }
 
   .legal__content :global(ul),
   .legal__content :global(ol) {
     margin: 10px 0 14px 22px;
-    color: rgba(16, 17, 18, 0.85);
-    line-height: 1.65;
+    color: rgb(var(--text-dark-rgb) / 0.84);
+    line-height: 1.66;
+  }
+
+  .legal__content :global(li) {
+    margin: 6px 0;
+  }
+
+  .legal__content :global(a) {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+    transition: color 140ms ease;
+  }
+
+  .legal__content :global(a:hover) {
+    color: var(--accent-hover);
+  }
+
+  .legal__content :global(hr) {
+    border: 0;
+    height: 1px;
+    background: var(--border-on-light);
+    margin: 22px 0;
   }
 </style>

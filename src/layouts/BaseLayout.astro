@@ -16,10 +16,65 @@ type Props = {
 
 const { lang, title, description, keywords, faviconHref, theme } = Astro.props;
 
+const parseHexColor = (value: string): [number, number, number] | null => {
+  const raw = value.trim();
+  if (!raw.startsWith("#")) return null;
+  const hex = raw.slice(1);
+
+  const normalized =
+    hex.length === 3
+      ? hex
+          .split("")
+          .map((c) => c + c)
+          .join("")
+      : hex.length === 6
+        ? hex
+        : null;
+
+  if (!normalized) return null;
+
+  const r = Number.parseInt(normalized.slice(0, 2), 16);
+  const g = Number.parseInt(normalized.slice(2, 4), 16);
+  const b = Number.parseInt(normalized.slice(4, 6), 16);
+
+  if ([r, g, b].some((n) => Number.isNaN(n))) return null;
+  return [r, g, b];
+};
+
+const toRgbTriplet = (value: [number, number, number]): string => value.join(" ");
+
+const toHexColor = (value: [number, number, number]): string => {
+  const [r, g, b] = value.map((channel) => {
+    const normalized = Math.max(0, Math.min(255, Math.round(channel)));
+    return normalized.toString(16).padStart(2, "0");
+  });
+  return `#${r}${g}${b}`;
+};
+
+const darken = (value: [number, number, number], amount: number): [number, number, number] => {
+  const ratio = Math.max(0, Math.min(1, amount));
+  return value.map((channel) => channel * (1 - ratio)) as [number, number, number];
+};
+
+const accent = theme?.accent ? parseHexColor(theme.accent) : null;
+const bgDark = theme?.bgDark ? parseHexColor(theme.bgDark) : null;
+const bgLight = theme?.bgLight ? parseHexColor(theme.bgLight) : null;
+
+const accentRgb = accent ? toRgbTriplet(accent) : null;
+const bgDarkRgb = bgDark ? toRgbTriplet(bgDark) : null;
+const bgLightRgb = bgLight ? toRgbTriplet(bgLight) : null;
+const accentHover = accent ? toHexColor(darken(accent, 0.12)) : null;
+const accentActive = accent ? toHexColor(darken(accent, 0.24)) : null;
+
 const themeStyle = [
   theme?.accent ? `--accent: ${theme.accent}` : "",
+  accentHover ? `--accent-hover: ${accentHover}` : "",
+  accentActive ? `--accent-active: ${accentActive}` : "",
+  accentRgb ? `--accent-rgb: ${accentRgb}` : "",
   theme?.bgDark ? `--bg-dark: ${theme.bgDark}` : "",
+  bgDarkRgb ? `--bg-dark-rgb: ${bgDarkRgb}` : "",
   theme?.bgLight ? `--bg-light: ${theme.bgLight}` : "",
+  bgLightRgb ? `--bg-light-rgb: ${bgLightRgb}` : "",
 ]
   .filter(Boolean)
   .join(";");

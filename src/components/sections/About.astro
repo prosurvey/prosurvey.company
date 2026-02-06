@@ -11,73 +11,96 @@ type Props = {
 const { id, eyebrow, title, text, stats, note } = Astro.props;
 ---
 
-<section id={id} class="section section--light">
-  <div class="container about">
-    <p class="eyebrow">{eyebrow}</p>
-    <h2 class="h2">{title}</h2>
-    <p class="lead about__text">{text}</p>
-
-    <div class="about__stats">
-      {stats.map((stat) => (
-        <div class="about__stat card">
-          <div class="about__stat-value">{stat.value}</div>
-          <div class="about__stat-label">{stat.label}</div>
-        </div>
-      ))}
+<section id={id} class="section section--light about">
+  <div class="ds-container ds-container_type_short-color about__block about__block--intro">
+    <div class="ds-container__title-wrapper">
+      <h2 class="ds-container__title">{title}</h2>
     </div>
+    <div class="ds-container__content">
+      <p class="b-text__text b-text__text_align_center">
+        <strong class="b-text__insert-title">{eyebrow}</strong> — {text}
+      </p>
+    </div>
+  </div>
 
-    <p class="about__note">{note}</p>
+  <div class="ds-container ds-container_type_short-color about__block about__block--features">
+    <div class="ds-container__content">
+      <div class="b-features__wrapper b-features__wrapper_col-3">
+        {stats.map((stat) => (
+          <div class="ds-feature-bubble b-features__bubble">
+            <strong class="ds-feature-bubble__title">{stat.value}</strong>
+            <p class="ds-feature-bubble__text">{stat.label}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+
+  <div class="ds-container ds-container_type_short-color about__block about__block--note">
+    <div class="ds-container__content">
+      <p class="b-text__text b-text__text_align_center">
+        <strong class="b-text__insert-title">{note}</strong>
+      </p>
+    </div>
   </div>
 </section>
 
 <style>
-  .about__text {
-    max-width: 920px;
+  .about {
+    padding: 0;
   }
 
-  .about__stats {
+  .about__block--intro {
+    padding: clamp(64px, 7vw, 92px) 0 24px;
+  }
+
+  .about__block--features {
+    padding: 24px 0;
+  }
+
+  .about__block--note {
+    padding: 36px 0 clamp(64px, 7vw, 92px);
+  }
+
+  .b-text__text {
+    color: var(--text-dark);
+    font-size: clamp(16px, 1.1vw + 12px, 20px);
+    font-weight: 400;
+    line-height: 1.68;
+    white-space: pre-wrap;
+    word-break: break-word;
+    margin: 0;
+  }
+
+  .b-text__text_align_center {
+    text-align: left;
+  }
+
+  .b-text__insert-title {
+    font-size: inherit;
+    font-weight: 700;
+    line-height: inherit;
+  }
+
+  .b-features__wrapper {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 14px;
-    margin-top: 28px;
+    gap: 12px;
   }
 
-  .about__stat {
-    padding: 18px 18px;
-    box-shadow: none;
-    background: #fff;
-    border-color: rgba(16, 17, 18, 0.08);
-  }
-
-  .about__stat-value {
-    font-size: 34px;
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    margin-bottom: 6px;
-  }
-
-  .about__stat-label {
-    color: var(--muted-on-light);
-    line-height: 1.4;
-  }
-
-  .about__note {
-    margin: 28px 0 0;
-    font-size: 18px;
-    line-height: 1.65;
-    white-space: pre-line;
-    color: rgba(16, 17, 18, 0.85);
-    max-width: 920px;
-  }
-
-  @media (max-width: 860px) {
-    .about__stats {
-      grid-template-columns: 1fr;
+  @media (min-width: 620px) {
+    .b-text__text_align_center {
+      text-align: center;
     }
 
-    .about__stat-value {
-      font-size: 30px;
+    .b-features__wrapper {
+      gap: 16px;
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .b-features__wrapper_col-3 {
+      grid-template-columns: repeat(3, 1fr);
     }
   }
 </style>
-

@@ -1,10 +1,11 @@
 ---
 type Props = {
   text: string;
+  acceptText: string;
   link: { text: string; href: string };
 };
 
-const { text, link } = Astro.props;
+const { text, acceptText, link } = Astro.props;
 ---
 
 <div class="cookie" data-cookie-banner hidden>
@@ -13,23 +14,57 @@ const { text, link } = Astro.props;
       <p class="cookie__p">{text}</p>
       <a class="cookie__link" href={link.href}>{link.text}</a>
     </div>
-    <button class="btn btn-primary cookie__btn" type="button" data-cookie-accept>Понятно</button>
+    <button class="btn btn-primary cookie__btn" type="button" data-cookie-accept>{acceptText}</button>
   </div>
 </div>
 
 <script is:inline>
   {String.raw`
-    const key = 'prosurvey_cookie_consent';
+    const key = 'prosurvey_cookie_consent_v2';
     const banner = document.querySelector('[data-cookie-banner]');
     const btn = document.querySelector('[data-cookie-accept]');
-    if (banner && btn) {
-      const stored = localStorage.getItem(key);
-      if (stored !== 'accepted') {
-        banner.hidden = false;
+
+    const prefersReduced = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+
+    const show = () => {
+      if (!banner) return;
+      banner.hidden = false;
+      if (prefersReduced) {
+        banner.classList.add('is-visible');
+        return;
       }
-      btn.addEventListener('click', () => {
-        localStorage.setItem(key, 'accepted');
+      requestAnimationFrame(() => {
+        banner.classList.add('is-visible');
+      });
+    };
+
+    const hide = () => {
+      if (!banner) return;
+      if (prefersReduced) {
         banner.hidden = true;
+        return;
+      }
+      banner.classList.remove('is-visible');
+      window.setTimeout(() => {
+        banner.hidden = true;
+      }, 220);
+    };
+
+    if (banner && btn) {
+      let stored = null;
+      try {
+        stored = localStorage.getItem(key);
+      } catch {
+        // ignore
+      }
+      if (stored !== 'accepted') show();
+      btn.addEventListener('click', () => {
+        try {
+          localStorage.setItem(key, 'accepted');
+        } catch {
+          // ignore
+        }
+        hide();
       });
     }
   `}
@@ -41,7 +76,15 @@ const { text, link } = Astro.props;
     left: 16px;
     right: 16px;
     bottom: 16px;
-    z-index: 80;
+    z-index: 900;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 220ms ease, transform 220ms ease;
+  }
+
+  .cookie.is-visible {
+    opacity: 1;
+    transform: translateY(0);
   }
 
   .cookie__inner {
@@ -49,10 +92,10 @@ const { text, link } = Astro.props;
     margin-inline: auto;
     border-radius: var(--radius-l);
     border: 1px solid var(--border-on-dark);
-    background: rgba(16, 17, 18, 0.92);
-    backdrop-filter: blur(18px);
-    box-shadow: var(--shadow);
-    padding: 14px 14px;
+    background: rgb(var(--bg-dark-rgb) / 0.96);
+    backdrop-filter: blur(8px);
+    box-shadow: var(--shadow-sm);
+    padding: 14px 16px;
     display: flex;
     gap: 12px;
     align-items: center;
@@ -64,7 +107,7 @@ const { text, link } = Astro.props;
     gap: 6px;
     color: var(--muted-on-dark);
     font-size: 14px;
-    line-height: 1.35;
+    line-height: 1.45;
   }
 
   .cookie__p {
@@ -75,7 +118,7 @@ const { text, link } = Astro.props;
   .cookie__link {
     text-decoration: underline;
     text-underline-offset: 3px;
-    color: rgba(248, 249, 250, 0.92);
+    color: rgb(var(--text-light-rgb) / 0.92);
     width: fit-content;
   }
 
@@ -95,4 +138,3 @@ const { text, link } = Astro.props;
     }
   }
 </style>
-

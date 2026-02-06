@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "astro": "^5.17.1",
+    "photoswipe": "^5.4.4",
     "yaml": "^2.8.1"
   }
 }

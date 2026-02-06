@@ -61,13 +61,19 @@ const content = await loadHomeContent();
       imageHref={content.assets.formImage}
       submitText={content.sections.request.submitText}
       fields={content.sections.request.fields}
+      messages={content.sections.request.messages}
       consentLinks={content.sections.request.consentLinks}
     />
 
     <Certifications
       id={content.sections.certifications.id}
       title={content.sections.certifications.title}
-      items={content.assets.certifications.map((c) => ({ imageHref: c.image, title: c.title }))}
+      items={content.assets.certifications.map((c) => ({
+        imageHref: c.image,
+        title: c.title,
+        width: c.width,
+        height: c.height,
+      }))}
     />
 
     <Contacts
@@ -77,9 +83,7 @@ const content = await loadHomeContent();
       phoneText={content.sections.contacts.phoneText}
       phoneHref={content.sections.contacts.phoneHref}
       hours={content.sections.contacts.hours}
-      address={content.sections.contacts.address}
       socials={content.sections.contacts.socials}
-      imageHref={content.assets.contactsImage}
     />
   </main>
 
@@ -89,5 +93,7 @@ const content = await loadHomeContent();
     copyright={content.footer.copyright}
   />
 
-  {content.cookie.enabled ? <CookieBanner text={content.cookie.text} link={content.cookie.link} /> : null}
+  {content.cookie.enabled ? (
+    <CookieBanner text={content.cookie.text} acceptText={content.cookie.acceptText} link={content.cookie.link} />
+  ) : null}
 </BaseLayout>

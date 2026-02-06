@@ -1,59 +1,364 @@
 ---
+import "photoswipe/style.css";
+import galleryScript from "../../scripts/certifications-gallery.ts?url";
+
 type Props = {
   id: string;
   title: string;
-  items: Array<{ imageHref: string; title: string }>;
+  items: Array<{ imageHref: string; title: string; width: number; height: number }>;
 };
 
 const { id, title, items } = Astro.props;
 ---
 
-<section id={id} class="section section--dark">
-  <div class="container certs">
-    <h2 class="h2">{title}</h2>
+<section id={id} class="section section--dark certs">
+  <div class="ds-container certs__inner">
+    <h2 class="ds-container__title">{title}</h2>
 
-    <div class="certs__grid">
-      {items.map((item) => (
-        <div class="certs__card card">
-          <img class="certs__image" src={item.imageHref} alt={item.title} loading="lazy" decoding="async" />
-          <div class="certs__title">{item.title}</div>
-        </div>
+    <ul class="ds-list certs__grid pswp-gallery" id="certs-gallery">
+      {items.map((item, index) => (
+        <li class="ds-col-4 certs__item">
+          <a
+            class="certs__card"
+            href={`#certs-lightbox-${index}`}
+            data-pswp-src={item.imageHref}
+            data-pswp-width={item.width}
+            data-pswp-height={item.height}
+            data-pswp-caption={item.title}
+            aria-label={`Открыть ${item.title}`}
+            style={`background-image: url(${item.imageHref})`}
+          >
+            <span class="certs__title">{item.title}</span>
+          </a>
+        </li>
       ))}
-    </div>
+    </ul>
   </div>
+
+  <div class="certs__lightbox-layer">
+    {items.map((item, index) => (
+      <div class="certs__lightbox" id={`certs-lightbox-${index}`} role="dialog" aria-modal="true">
+        <a class="certs__lightbox-backdrop" href={`#${id}`} aria-label="Закрыть"></a>
+        <div class="certs__lightbox-inner">
+          <img class="certs__lightbox-image" src={item.imageHref} alt={item.title} />
+          <div class="certs__lightbox-actions">
+            <a class="certs__lightbox-download" href={item.imageHref} download aria-label="Скачать сертификат">
+              <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+                <path
+                  fill="currentColor"
+                  d="M12 3a1 1 0 0 1 1 1v8.59l2.3-2.3a1 1 0 1 1 1.4 1.42l-4.01 4a1 1 0 0 1-1.4 0l-4.01-4a1 1 0 1 1 1.42-1.42L11 12.59V4a1 1 0 0 1 1-1Zm-7 14a1 1 0 0 1 1 1v2h12v-2a1 1 0 1 1 2 0v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1Z"
+                />
+              </svg>
+            </a>
+            <a class="certs__lightbox-close" href={`#${id}`} aria-label="Закрыть">×</a>
+          </div>
+          <p class="certs__lightbox-caption">{item.title}</p>
+          <div class="certs__lightbox-nav">
+            <a
+              class="certs__lightbox-prev"
+              href={`#certs-lightbox-${(index - 1 + items.length) % items.length}`}
+              aria-label="Предыдущий"
+            >
+              ‹
+            </a>
+            <a
+              class="certs__lightbox-next"
+              href={`#certs-lightbox-${(index + 1) % items.length}`}
+              aria-label="Следующий"
+            >
+              ›
+            </a>
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <script type="module" src={galleryScript}></script>
 </section>
 
 <style>
-  .certs__grid {
-    margin-top: 22px;
+  .certs__inner {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 14px;
+    gap: 24px;
   }
 
-  .certs__card {
-    padding: 18px;
-    display: grid;
-    justify-items: center;
-    gap: 12px;
+  .certs__inner :global(.ds-container__title) {
     text-align: center;
   }
 
-  .certs__image {
-    width: min(220px, 65vw);
-    height: auto;
-    filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.25));
+  .certs__grid {
+    margin: 0;
+  }
+
+  .certs__card {
+    width: 100%;
+    aspect-ratio: 2 / 3;
+    border-radius: var(--radius-m);
+    border: 1px solid var(--border-on-dark);
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-color: rgb(var(--bg-dark-rgb) / 0.84);
+    color: var(--text-light);
+    display: flex;
+    align-items: flex-end;
+    padding: 16px;
+    position: relative;
+    overflow: hidden;
+    text-align: left;
+    cursor: pointer;
+    font: inherit;
+    text-decoration: none;
+    transition: border-color 180ms ease, box-shadow 180ms ease;
+  }
+
+  .certs__card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgb(0 0 0 / 0.2) 0%, rgb(0 0 0 / 0.76) 100%);
+    transition: opacity 180ms ease;
+  }
+
+  .certs__card:hover {
+    border-color: rgb(var(--text-light-rgb) / 0.26);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .certs__card:hover::before {
+    opacity: 0.88;
+  }
+
+  .certs__card:focus {
+    outline: none;
+  }
+
+  :global(body[data-input="keyboard"]) .certs__card:focus {
+    outline: 3px solid rgb(var(--accent-rgb) / 0.24);
+    outline-offset: 2px;
   }
 
   .certs__title {
-    color: rgba(248, 249, 250, 0.9);
+    position: relative;
+    z-index: 1;
+    font-family: var(--font-display);
     font-size: 16px;
+    line-height: 22px;
+    font-weight: 600;
+    text-shadow: 0 6px 20px rgb(0 0 0 / 0.25);
   }
 
-  @media (max-width: 860px) {
-    .certs__grid {
-      grid-template-columns: 1fr;
+  .certs__lightbox-layer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1200;
+  }
+
+  .certs__lightbox {
+    position: absolute;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    pointer-events: auto;
+  }
+
+  .certs__lightbox:target {
+    display: flex;
+  }
+
+  .certs__lightbox-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgb(0 0 0 / 0.9);
+  }
+
+  .certs__lightbox-inner {
+    position: relative;
+    z-index: 1;
+    width: min(960px, 92vw);
+    max-height: 88vh;
+    display: grid;
+    gap: 12px;
+    justify-items: center;
+  }
+
+  .certs__lightbox-image {
+    width: 100%;
+    max-height: 78vh;
+    object-fit: contain;
+    border-radius: var(--radius-m);
+    border: 1px solid var(--border-on-dark);
+    background: rgb(var(--bg-dark-rgb) / 0.9);
+    box-shadow: var(--shadow-md);
+  }
+
+  .certs__lightbox-actions {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    gap: 8px;
+  }
+
+  .certs__lightbox-download,
+  .certs__lightbox-close {
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
+    border: 1px solid rgb(var(--text-light-rgb) / 0.2);
+    background: rgb(var(--bg-dark-rgb) / 0.76);
+    color: rgb(var(--text-light-rgb) / 0.92);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    font-size: 22px;
+    transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease;
+  }
+
+  .certs__lightbox-download:hover,
+  .certs__lightbox-close:hover {
+    color: var(--accent);
+    border-color: rgb(var(--text-light-rgb) / 0.3);
+    background: rgb(var(--bg-dark-rgb) / 0.9);
+  }
+
+  .certs__lightbox-download:focus-visible,
+  .certs__lightbox-close:focus-visible {
+    outline: 3px solid rgb(var(--accent-rgb) / 0.24);
+    outline-offset: 2px;
+  }
+
+  .certs__lightbox-caption {
+    margin: 0;
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: 1px solid rgb(var(--text-light-rgb) / 0.14);
+    background: rgb(var(--bg-dark-rgb) / 0.76);
+    color: rgb(var(--text-light-rgb) / 0.92);
+    font-size: 14px;
+    line-height: 20px;
+    text-align: center;
+    backdrop-filter: blur(8px);
+  }
+
+  .certs__lightbox-nav {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 18px;
+    pointer-events: none;
+  }
+
+  .certs__lightbox-prev,
+  .certs__lightbox-next {
+    pointer-events: auto;
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    border: 1px solid rgb(var(--text-light-rgb) / 0.2);
+    background: rgb(var(--bg-dark-rgb) / 0.72);
+    color: rgb(var(--text-light-rgb) / 0.92);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    font-size: 26px;
+    transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease;
+  }
+
+  .certs__lightbox-prev:hover,
+  .certs__lightbox-next:hover {
+    color: var(--accent);
+    border-color: rgb(var(--text-light-rgb) / 0.3);
+    background: rgb(var(--bg-dark-rgb) / 0.88);
+  }
+
+  .certs__lightbox-prev:focus-visible,
+  .certs__lightbox-next:focus-visible {
+    outline: 3px solid rgb(var(--accent-rgb) / 0.24);
+    outline-offset: 2px;
+  }
+
+  :global(.pswp) {
+    --pswp-bg: rgb(var(--bg-dark-rgb) / 0.96);
+    --pswp-placeholder-bg: rgb(var(--bg-dark-rgb) / 0.84);
+    --pswp-icon-color: rgb(var(--text-light-rgb) / 0.92);
+    --pswp-icon-color-secondary: rgb(var(--text-light-rgb) / 0.32);
+    --pswp-preloader-color: rgb(var(--text-light-rgb) / 0.22);
+    --pswp-preloader-color-secondary: rgb(var(--text-light-rgb) / 0.92);
+  }
+
+  :global(.pswp__button--download) {
+    color: rgb(var(--text-light-rgb) / 0.92);
+    opacity: 1;
+    --pswp-icon-color: rgb(var(--text-light-rgb) / 0.92);
+    --pswp-icon-color-secondary: rgb(var(--text-light-rgb) / 0.92);
+  }
+
+  :global(.pswp__button--download:hover) {
+    color: var(--accent);
+  }
+
+  :global(.pswp__button--download .pswp__icn) {
+    opacity: 1;
+    color: rgb(var(--text-light-rgb) / 0.92);
+    fill: rgb(var(--text-light-rgb) / 0.92);
+  }
+
+  :global(.pswp__img--with-bg),
+  :global(.pswp__img--placeholder) {
+    background: transparent !important;
+  }
+
+  :global(.pswp__custom-caption) {
+    position: absolute;
+    left: 50%;
+    bottom: 18px;
+    transform: translateX(-50%);
+    max-width: min(720px, 92vw);
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: 1px solid rgb(var(--text-light-rgb) / 0.14);
+    background: rgb(var(--bg-dark-rgb) / 0.76);
+    color: rgb(var(--text-light-rgb) / 0.92);
+    font-size: 14px;
+    line-height: 20px;
+    text-align: center;
+    pointer-events: none;
+    backdrop-filter: blur(8px);
+  }
+
+  :global(.pswp__custom-caption.is-empty) {
+    display: none;
+  }
+
+  @media (min-width: 1024px) {
+    .certs__title {
+      font-size: 18px;
+      line-height: 26px;
+    }
+
+    :global(.pswp__custom-caption) {
+      font-size: 15px;
+      line-height: 22px;
+      bottom: 22px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .certs__card,
+    .certs__lightbox-download,
+    .certs__lightbox-close,
+    .certs__lightbox-prev,
+    .certs__lightbox-next {
+      transition: none !important;
     }
   }
 </style>
-

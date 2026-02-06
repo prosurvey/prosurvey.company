@@ -12,93 +12,204 @@ type Props = {
     message: { label: string; required: boolean };
     consent: { label: string; required: boolean };
   };
+  messages: {
+    invalidForm: string;
+    success: string;
+  };
   consentLinks: {
     privacy: { text: string; href: string };
     terms: { prefix: string; text: string; href: string };
   };
 };
 
-const { id, title, description, imageHref, submitText, fields, consentLinks } = Astro.props;
+const { id, title, description, imageHref, submitText, fields, messages, consentLinks } = Astro.props;
 
-const consentMarker = "Политику Конфиденциальности";
+const consentMarker = consentLinks.privacy.text;
 const consentParts = fields.consent.label.includes(consentMarker)
   ? fields.consent.label.split(consentMarker)
   : null;
 ---
 
 <section id={id} class="section request">
-  <img class="request__bg" src={imageHref} alt="" loading="lazy" decoding="async" />
-  <div class="request__overlay"></div>
-  <div class="container request__inner">
-    <div class="request__copy">
-      <p class="eyebrow">Заявка</p>
-      <h2 class="h2">{title}</h2>
-      <p class="lead">{description}</p>
-    </div>
+  <div class="ds-container ds-container_type_short-color request__container">
+    <div
+      class="b-form__wrapper b-form__wrapper_theme_full"
+      style={`background: linear-gradient(180deg, rgb(var(--bg-dark-rgb) / 0.78), rgb(var(--bg-dark-rgb) / 0.78)), center/cover url(${imageHref})`}
+    >
+      <form
+        class="ds-form ds-form_inverse b-form__form"
+        data-request-form
+        data-success-message={messages.success}
+        novalidate
+      >
+        <h3 class="ds-form__title">{title}</h3>
+        <p class="ds-form__description">{description}</p>
 
-    <form class="request__form card" data-request-form method="post" action="#">
-      <div class="request__grid">
-        <label class="field">
-          <span class="field__label">{fields.name.label}</span>
-          <input class="field__input" type="text" name="name" autocomplete="name" required={fields.name.required} />
-        </label>
+        <div class="ds-input ds-form__item">
+          <label class="ds-input__label">
+            <input
+              class="ds-input__input ds-input__input_with-label ds-input__input_color_secondary"
+              type="text"
+              name="name"
+              autocomplete="name"
+              placeholder=" "
+              required={fields.name.required}
+            />
+            <span class="ds-input__text-label">{fields.name.label}</span>
+          </label>
+        </div>
 
-        <label class="field">
-          <span class="field__label">{fields.phone.label}</span>
-          <input class="field__input" type="tel" name="phone" autocomplete="tel" />
-        </label>
+        <div class="ds-input ds-form__item">
+          <label class="ds-input__label">
+            <input
+              class="ds-input__input ds-input__input_with-label ds-input__input_color_secondary"
+              type="tel"
+              inputmode="tel"
+              name="phone"
+              autocomplete="tel"
+              placeholder=" "
+              required={fields.phone.required}
+            />
+            <span class="ds-input__text-label">{fields.phone.label}</span>
+          </label>
+        </div>
 
-        <label class="field field--full">
-          <span class="field__label">{fields.email.label}</span>
-          <input class="field__input" type="email" name="email" autocomplete="email" required={fields.email.required} />
-        </label>
+        <div class="ds-input ds-form__item">
+          <label class="ds-input__label">
+            <input
+              class="ds-input__input ds-input__input_with-label ds-input__input_color_secondary"
+              type="email"
+              inputmode="email"
+              name="email"
+              autocomplete="email"
+              placeholder=" "
+              required={fields.email.required}
+            />
+            <span class="ds-input__text-label">{fields.email.label}</span>
+          </label>
+        </div>
 
-        <label class="field field--full">
-          <span class="field__label">{fields.message.label}</span>
-          <textarea class="field__textarea" name="message" rows="4"></textarea>
-        </label>
+        <div class="ds-textarea ds-form__item">
+          <label class="ds-textarea__label ds-textarea__label_color_secondary">
+            <textarea class="ds-textarea__textarea" name="message" rows="2" placeholder=" " required={fields.message.required}></textarea>
+            <span class="ds-textarea__text-label">{fields.message.label}</span>
+          </label>
+        </div>
 
-        <label class="consent field--full">
-          <input class="consent__checkbox" type="checkbox" name="consent" required={fields.consent.required} />
-          <span class="consent__text">
+        <label class="ds-checkbox ds-checkbox_color_secondary ds-form__item">
+          <span class="ds-checkbox__outer">
+            <input class="ds-checkbox__input" type="checkbox" name="consent" required={fields.consent.required} />
+            <span class="ds-checkbox__inner"></span>
+          </span>
+          <span class="ds-checkbox__label">
             {consentParts ? (
               <>
                 {consentParts[0]}
-                <a class="consent__link" href={consentLinks.privacy.href}>{consentLinks.privacy.text}</a>
+                <a class="ds-link" href={consentLinks.privacy.href}>{consentLinks.privacy.text}</a>
                 {consentParts[1]}
               </>
             ) : (
               <>
                 {fields.consent.label}{" "}
-                <a class="consent__link" href={consentLinks.privacy.href}>{consentLinks.privacy.text}</a>
+                <a class="ds-link" href={consentLinks.privacy.href}>{consentLinks.privacy.text}</a>
               </>
             )}
           </span>
         </label>
-      </div>
 
-      <div class="request__actions">
-        <button class="btn btn-primary request__submit" type="submit">{submitText}</button>
-        <p class="request__legal">
-          {consentLinks.terms.prefix}{" "}
-          <a class="request__legal-link" href={consentLinks.terms.href}>{consentLinks.terms.text}</a>
-        </p>
+        <button class="btn btn-primary request__submit" type="submit">
+          {submitText}
+        </button>
+
+        <div class="form-attachments">
+          <p class="form-attachments__text form-attachments__text_inverse">{consentLinks.terms.prefix}</p>
+          <p class="form-attachments__text form-attachments__text_inverse">
+            <a class="ds-link" href={consentLinks.terms.href}>{consentLinks.terms.text}</a>
+          </p>
+        </div>
+
         <p class="request__status" data-request-status role="status" aria-live="polite"></p>
-      </div>
-    </form>
+      </form>
+    </div>
   </div>
 
-  <script is:inline>
-    {String.raw`
-      const form = document.querySelector('[data-request-form]');
-      const statusEl = document.querySelector('[data-request-status]');
-      if (form && statusEl) {
-        form.addEventListener('submit', (event) => {
+  <script>
+    const form = document.querySelector('[data-request-form]');
+    const statusEl = document.querySelector('[data-request-status]');
+
+    if (form && statusEl) {
+      const fields = Array.from(form.querySelectorAll('input, textarea'));
+      const successMessage = form.dataset.successMessage || '';
+
+      const isValidField = (field) => {
+        if (field instanceof HTMLInputElement && field.type === 'checkbox') {
+          return !field.required || field.checked;
+        }
+
+        const value = (field.value || '').trim();
+        if (field.required && !value) {
+          return false;
+        }
+
+        if (field instanceof HTMLInputElement && field.type === 'email' && value) {
+          return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+        }
+
+        return true;
+      };
+
+      const setStatus = (message = '', tone = '') => {
+        statusEl.textContent = message;
+        statusEl.classList.remove('is-success', 'is-error');
+        if (tone) {
+          statusEl.classList.add(tone);
+        }
+      };
+
+      const updateFieldState = (field, showInvalid = false) => {
+        const item = field.closest('.ds-form__item');
+        if (!item) return;
+        if (isValidField(field)) {
+          item.classList.remove('is-invalid');
+        } else if (showInvalid || form.classList.contains('is-submitted')) {
+          item.classList.add('is-invalid');
+        }
+      };
+
+      const hasInvalidFields = () => fields.some((field) => !isValidField(field));
+
+      form.addEventListener(
+        'invalid',
+        (event) => {
           event.preventDefault();
-          statusEl.textContent = 'Форма пока в режиме заглушки. Мы подключим CRM следующим шагом.';
-        });
-      }
-    `}
+        },
+        true
+      );
+
+      fields.forEach((field) => {
+        field.addEventListener('input', () => updateFieldState(field));
+        field.addEventListener('change', () => updateFieldState(field));
+        field.addEventListener('blur', () => updateFieldState(field));
+      });
+
+      form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        form.classList.add('is-submitted');
+        fields.forEach((field) => updateFieldState(field, true));
+
+        if (hasInvalidFields()) {
+          setStatus();
+          return;
+        }
+
+        const formData = Object.fromEntries(new FormData(form).entries());
+        console.log('[request-form] stub submit', formData);
+        setStatus(successMessage, 'is-success');
+        form.reset();
+        form.classList.remove('is-submitted');
+        fields.forEach((field) => updateFieldState(field));
+      });
+    }
   </script>
 </section>
 
@@ -107,145 +218,383 @@ const consentParts = fields.consent.label.includes(consentMarker)
     position: relative;
     background: var(--bg-dark);
     color: var(--text-light);
-    overflow: hidden;
   }
 
-  .request__bg {
+  .b-form__wrapper {
+    border-radius: var(--radius-l);
+    overflow: hidden;
+    padding-block: clamp(32px, 6vw, 88px);
+    padding-inline: clamp(16px, 4vw, 56px);
+    background-position: center;
+    background-size: cover;
+  }
+
+  .b-form__form {
+    margin: auto;
+    width: 100%;
+    max-width: min(560px, 100%);
+  }
+
+  .ds-form {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    padding: clamp(18px, 3vw, 30px);
+    border-radius: var(--radius-xl);
+    border: 1px solid rgb(var(--text-light-rgb) / 0.16);
+    background: rgb(var(--bg-dark-rgb) / 0.64);
+    backdrop-filter: blur(8px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .ds-form__title {
+    margin: 0 0 12px;
+    color: var(--text-light);
+    font-family: var(--font-display);
+    font-size: clamp(22px, 2.4vw, 34px);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1.12;
+    text-align: center;
+  }
+
+  .ds-form__description {
+    margin: 0 0 16px;
+    color: rgb(var(--text-light-rgb) / 0.8);
+    font-size: clamp(15px, 1.1vw + 12px, 18px);
+    font-weight: 400;
+    line-height: 1.6;
+    text-align: center;
+    white-space: pre-wrap;
+  }
+
+  .ds-form__item {
+    margin-bottom: 16px;
+  }
+
+  .ds-input {
+    position: relative;
+  }
+
+  .ds-input__label {
+    display: block;
+    position: relative;
+  }
+
+  .ds-input__text-label {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgb(var(--text-light-rgb) / 0.74);
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 22px;
+    transition: color 0.2s ease, top 0.2s ease, transform 0.2s ease, font-size 0.2s ease, line-height 0.2s ease;
+  }
+
+  .ds-input__input {
+    width: 100%;
+    border: 1px solid rgb(var(--text-light-rgb) / 0.16);
+    border-radius: var(--radius-s);
+    background-color: rgb(var(--text-light-rgb) / 0.06);
+    color: var(--text-light);
+    caret-color: var(--accent);
+    font-size: 16px;
+    line-height: 22px;
+    padding: 15px 14px;
+    transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .ds-input__input:hover {
+    background-color: rgb(var(--text-light-rgb) / 0.08);
+    border-color: rgb(var(--text-light-rgb) / 0.24);
+  }
+
+  .ds-input__input_with-label {
+    padding: 22px 14px 8px;
+  }
+
+  .ds-input__input:focus {
+    outline: none;
+    background-color: rgb(var(--text-light-rgb) / 0.1);
+    box-shadow: var(--focus-ring);
+  }
+
+  .ds-input__input:focus + .ds-input__text-label,
+  .ds-input__input:not(:placeholder-shown) + .ds-input__text-label {
+    top: 6px;
+    transform: translateY(0);
+    font-size: 13px;
+    line-height: 16px;
+  }
+
+  .ds-input__input:focus + .ds-input__text-label {
+    color: rgb(var(--text-light-rgb) / 0.94);
+  }
+
+  .ds-form__item.is-invalid .ds-input__input {
+    background-color: rgb(var(--status-error-rgb) / 0.16);
+    border-color: rgb(var(--status-error-rgb) / 0.58);
+    box-shadow: 0 0 0 3px rgb(var(--status-error-rgb) / 0.24);
+  }
+
+  .ds-form__item.is-invalid .ds-input__text-label {
+    color: var(--status-error-text);
+  }
+
+  .ds-textarea {
+    position: relative;
+  }
+
+  .ds-textarea__label {
+    display: flex;
+    position: relative;
+    border: 1px solid rgb(var(--text-light-rgb) / 0.16);
+    border-radius: var(--radius-s);
+    background-color: rgb(var(--text-light-rgb) / 0.06);
+    padding: 24px 0 6px;
+    transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .ds-textarea__label:hover {
+    background-color: rgb(var(--text-light-rgb) / 0.08);
+    border-color: rgb(var(--text-light-rgb) / 0.24);
+  }
+
+  .ds-textarea__label:focus-within {
+    background-color: rgb(var(--text-light-rgb) / 0.1);
+    box-shadow: var(--focus-ring);
+  }
+
+  .ds-textarea__text-label {
+    position: absolute;
+    left: 12px;
+    top: 14px;
+    color: rgb(var(--text-light-rgb) / 0.74);
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 22px;
+    transition: color 0.2s ease, top 0.2s ease, font-size 0.2s ease, line-height 0.2s ease;
+  }
+
+  .ds-textarea__textarea {
+    width: 100%;
+    min-height: 92px;
+    border: none;
+    background-color: transparent;
+    color: var(--text-light);
+    caret-color: var(--accent);
+    font-size: 16px;
+    line-height: 22px;
+    padding: 0 14px 4px 12px;
+    border-radius: var(--radius-s);
+  }
+
+  .ds-textarea__textarea:focus {
+    outline: none;
+  }
+
+  .ds-textarea__textarea:focus + .ds-textarea__text-label,
+  .ds-textarea__textarea:not(:placeholder-shown) + .ds-textarea__text-label {
+    top: 6px;
+    font-size: 13px;
+    line-height: 16px;
+  }
+
+  .ds-textarea__textarea:focus + .ds-textarea__text-label {
+    color: rgb(var(--text-light-rgb) / 0.94);
+  }
+
+  .ds-form__item.is-invalid .ds-textarea__label {
+    background-color: rgb(var(--status-error-rgb) / 0.18);
+    border-color: rgb(var(--status-error-rgb) / 0.58);
+    box-shadow: 0 0 0 3px rgb(var(--status-error-rgb) / 0.24);
+  }
+
+  .ds-form__item.is-invalid .ds-textarea__text-label {
+    color: var(--status-error-text);
+  }
+
+  .ds-checkbox {
+    display: grid;
+    grid-template-columns: 20px minmax(0, 1fr);
+    column-gap: 12px;
+    row-gap: 0;
+    align-items: start;
+  }
+
+  .ds-checkbox__outer {
+    display: block;
+    width: 20px;
+    height: 20px;
+    position: relative;
+    margin-top: 1px;
+  }
+
+  .ds-checkbox__input {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover;
-    filter: saturate(0.85) contrast(1.05);
-    transform: scale(1.02);
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
   }
 
-  .request__overlay {
-    position: absolute;
-    inset: 0;
-    background:
-      radial-gradient(800px 400px at 80% 20%, rgba(164, 119, 100, 0.28), transparent 60%),
-      linear-gradient(90deg, rgba(16, 17, 18, 0.92), rgba(16, 17, 18, 0.55));
-  }
-
-  .request__inner {
-    position: relative;
-    z-index: 1;
-    display: grid;
-    grid-template-columns: 0.95fr 1.05fr;
-    gap: 28px;
-    align-items: start;
-  }
-
-  .request__copy .eyebrow {
-    color: var(--muted-on-dark);
-  }
-
-  .request__form {
-    padding: 18px;
-    border-color: var(--border-on-dark);
-  }
-
-  .request__grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-  }
-
-  .field {
-    display: grid;
-    gap: 8px;
-  }
-
-  .field--full {
-    grid-column: 1 / -1;
-  }
-
-  .field__label {
-    font-size: 14px;
-    color: rgba(248, 249, 250, 0.85);
-  }
-
-  .field__input,
-  .field__textarea {
+  .ds-checkbox__inner {
     width: 100%;
-    border-radius: 12px;
-    border: 1px solid rgba(248, 249, 250, 0.18);
-    background: rgba(16, 17, 18, 0.4);
-    color: var(--text-light);
-    padding: 12px 12px;
-    font: inherit;
-    outline: none;
+    height: 100%;
+    display: block;
+    border-radius: var(--radius-2xs);
+    border: 1px solid rgb(var(--text-light-rgb) / 0.42);
+    background: rgb(var(--text-light-rgb) / 0.08);
+    box-shadow: inset 0 1px 1px rgb(0 0 0 / 0.2);
+    position: relative;
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease,
+      background-color 0.2s ease;
   }
 
-  .field__textarea {
-    resize: vertical;
-    min-height: 110px;
+  .ds-checkbox__inner::after {
+    content: "";
+    position: absolute;
+    left: 6px;
+    top: 2px;
+    width: 5px;
+    height: 10px;
+    border-right: 2px solid #fff;
+    border-bottom: 2px solid #fff;
+    opacity: 0;
+    transform: rotate(45deg) scale(0.8);
+    transition:
+      opacity 0.14s ease,
+      transform 0.14s ease;
   }
 
-  .field__input:focus,
-  .field__textarea:focus {
-    border-color: rgba(164, 119, 100, 0.75);
-    box-shadow: 0 0 0 4px rgba(164, 119, 100, 0.18);
+  .ds-checkbox__input:hover + .ds-checkbox__inner {
+    border-color: rgb(var(--text-light-rgb) / 0.58);
   }
 
-  .consent {
-    display: flex;
-    gap: 10px;
-    align-items: flex-start;
-    padding-top: 4px;
+  .ds-checkbox__input:focus-visible + .ds-checkbox__inner {
+    box-shadow: var(--focus-ring);
   }
 
-  .consent__checkbox {
-    margin-top: 4px;
-    width: 18px;
-    height: 18px;
-    accent-color: var(--accent);
+  .ds-checkbox__input:checked + .ds-checkbox__inner {
+    background: var(--accent);
+    border-color: var(--accent);
   }
 
-  .consent__text {
-    color: rgba(248, 249, 250, 0.85);
-    line-height: 1.35;
+  .ds-checkbox__input:checked + .ds-checkbox__inner::after {
+    opacity: 1;
+    transform: rotate(45deg) scale(1);
+  }
+
+  .ds-form__item.is-invalid .ds-checkbox__inner {
+    border-color: rgb(var(--status-error-rgb) / 0.9);
+    background: rgb(var(--status-error-rgb) / 0.2);
+    box-shadow: 0 0 0 3px rgb(var(--status-error-rgb) / 0.24);
+  }
+
+  .ds-form__item.is-invalid .ds-checkbox__label {
+    color: var(--status-error-text);
+  }
+
+  .ds-checkbox__label {
+    display: block;
+    min-width: 0;
+    margin: 0;
+    color: rgb(var(--text-light-rgb) / 0.82);
     font-size: 14px;
+    line-height: 19px;
+    text-wrap: pretty;
   }
 
-  .consent__link {
-    text-decoration: underline;
-    text-underline-offset: 3px;
-  }
-
-  .request__actions {
-    margin-top: 14px;
-    display: grid;
-    gap: 10px;
+  .ds-checkbox__label .ds-link {
+    white-space: nowrap;
   }
 
   .request__submit {
     width: 100%;
+    margin-top: 2px;
   }
 
-  .request__legal {
+  .form-attachments {
+    display: grid;
+    gap: 4px;
+    margin-top: 12px;
+  }
+
+  .form-attachments__text {
     margin: 0;
+    font-size: 13px;
+    line-height: 18px;
     color: var(--muted-on-dark);
-    font-size: 14px;
-    line-height: 1.35;
   }
 
-  .request__legal-link {
+  .ds-link {
+    color: inherit;
     text-decoration: underline;
     text-underline-offset: 3px;
   }
 
   .request__status {
-    margin: 0;
-    color: rgba(248, 249, 250, 0.92);
+    margin: 14px 0 0;
+    color: rgb(var(--text-light-rgb) / 0.9);
     font-size: 14px;
+    line-height: 1.45;
   }
 
-  @media (max-width: 980px) {
-    .request__inner {
-      grid-template-columns: 1fr;
+  .request__status:empty {
+    display: none;
+  }
+
+  .request__status.is-success,
+  .request__status.is-error {
+    border-radius: var(--radius-xs);
+    border: 1px solid;
+    padding: 9px 12px;
+  }
+
+  .request__status.is-success {
+    color: var(--status-success-text);
+    background: rgb(var(--status-success-rgb) / 0.16);
+    border-color: rgb(var(--status-success-rgb) / 0.4);
+  }
+
+  .request__status.is-error {
+    color: var(--status-error-text);
+    background: rgb(var(--status-error-rgb) / 0.18);
+    border-color: rgb(var(--status-error-rgb) / 0.44);
+  }
+
+  @media (min-width: 1024px) {
+    .ds-form__title {
+      font-size: 32px;
+      margin-bottom: 14px;
+    }
+
+    .ds-form__description {
+      font-size: 18px;
+      margin-bottom: 18px;
+    }
+
+    .ds-input__text-label,
+    .ds-textarea__text-label {
+      font-size: 17px;
+      line-height: 24px;
+    }
+
+    .ds-input__input,
+    .ds-textarea__textarea,
+    .request__submit {
+      font-size: 17px;
+      line-height: 24px;
+    }
+
+    .ds-input__input_with-label {
+      padding: 22px 14px 7px;
     }
   }
 </style>
-

@@ -10,7 +10,7 @@ const { navItems, links, copyright } = Astro.props;
 
 <footer class="footer">
   <div class="container footer__inner">
-    <div class="footer__top">
+    <div class="footer__grid">
       <nav class="footer__nav" aria-label="Навигация в подвале">
         <ul class="footer__nav-list">
           {navItems.map((item) => (
@@ -21,17 +21,15 @@ const { navItems, links, copyright } = Astro.props;
         </ul>
       </nav>
 
-      <p class="footer__copyright">{copyright}</p>
-    </div>
-
-    <div class="footer__bottom">
-      <ul class="footer__links">
+      <ul class="footer__links" aria-label="Юридическая информация">
         {links.map((link) => (
           <li class="footer__links-item">
             <a class="footer__link" href={link.href}>{link.text}</a>
           </li>
         ))}
       </ul>
+
+      <p class="footer__copyright">{copyright}</p>
     </div>
   </div>
 </footer>
@@ -41,16 +39,13 @@ const { navItems, links, copyright } = Astro.props;
     border-top: 1px solid var(--border-on-dark);
     background: var(--bg-dark);
     color: var(--text-light);
-    padding: 42px 0;
+    padding: 44px 0;
   }
 
-  .footer__top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-    flex-wrap: wrap;
-    padding-bottom: 18px;
+  .footer__grid {
+    display: grid;
+    gap: 18px;
+    text-align: center;
   }
 
   .footer__nav-list {
@@ -58,27 +53,21 @@ const { navItems, links, copyright } = Astro.props;
     margin: 0;
     padding: 0;
     display: flex;
-    gap: 18px;
-    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 14px;
+    align-items: center;
   }
 
   .footer__nav-link {
-    color: var(--muted-on-dark);
+    color: rgb(var(--text-light-rgb) / 0.74);
+    font-size: 15px;
+    line-height: 20px;
     transition: color 140ms ease;
+    text-decoration: none;
   }
 
   .footer__nav-link:hover {
-    color: var(--text-light);
-  }
-
-  .footer__copyright {
-    margin: 0;
-    color: var(--muted-on-dark);
-  }
-
-  .footer__bottom {
-    border-top: 1px solid var(--border-on-dark);
-    padding-top: 18px;
+    color: rgb(var(--text-light-rgb) / 0.94);
   }
 
   .footer__links {
@@ -86,19 +75,80 @@ const { navItems, links, copyright } = Astro.props;
     margin: 0;
     padding: 0;
     display: flex;
-    gap: 18px;
+    gap: 10px 16px;
     flex-wrap: wrap;
+    justify-content: center;
   }
 
   .footer__link {
     text-decoration: underline;
-    text-underline-offset: 3px;
-    color: var(--muted-on-dark);
+    text-underline-offset: 4px;
+    text-decoration-thickness: 1px;
+    color: rgb(var(--text-light-rgb) / 0.72);
+    font-size: 14px;
+    line-height: 20px;
     transition: color 140ms ease;
   }
 
   .footer__link:hover {
-    color: var(--text-light);
+    color: rgb(var(--text-light-rgb) / 0.94);
+  }
+
+  @media (min-width: 620px) {
+    .footer__grid {
+      grid-template-columns: 1fr auto;
+      grid-template-areas:
+        "nav links"
+        "copy copy";
+      align-items: center;
+      text-align: left;
+      gap: 16px 18px;
+    }
+
+    .footer__nav {
+      grid-area: nav;
+    }
+
+    .footer__links {
+      grid-area: links;
+      justify-content: flex-end;
+    }
+
+    .footer__copyright {
+      grid-area: copy;
+      text-align: left;
+    }
+
+    .footer__nav-list {
+      flex-direction: row;
+      gap: 12px 18px;
+      justify-content: flex-start;
+      align-items: center;
+    }
+  }
+
+  .footer__nav-link:focus-visible,
+  .footer__link:focus-visible {
+    outline: 3px solid rgb(var(--accent-rgb) / 0.24);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+
+  .footer__copyright {
+    margin: 0;
+    color: rgb(var(--text-light-rgb) / 0.62);
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  @media (min-width: 1024px) {
+    .footer {
+      padding: 56px 0;
+    }
+
+    .footer__nav-link {
+      font-size: 16px;
+      line-height: 22px;
+    }
   }
 </style>
-

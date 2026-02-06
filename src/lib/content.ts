@@ -1,96 +1,199 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import YAML from "yaml";
+import { z } from "zod";
 
-export type HomeContent = {
-  site: {
-    lang: string;
-    title: string;
-    brandName: string;
-    description: string;
-    keywords?: string;
-  };
-  assets: {
-    favicon: string;
-    logo: string;
-    heroImage: string;
-    formImage: string;
-    contactsImage: string;
-    certifications: Array<{ image: string; title: string }>;
-  };
-  theme: {
-    accent: string;
-    bgDark: string;
-    bgLight: string;
-  };
-  nav: {
-    header: {
-      items: Array<{ text: string; href: string }>;
-      cta: { text: string; href: string };
-    };
-  };
-  sections: {
-    hero: {
-      title: string;
-      text: string;
-      buttons: Array<{ text: string; href: string }>;
-    };
-    about: {
-      id: string;
-      eyebrow: string;
-      title: string;
-      text: string;
-      stats: Array<{ value: string; label: string }>;
-      note: string;
-    };
-    services: {
-      id: string;
-      title: string;
-      subtitle: string;
-      main: string[];
-      other: string[];
-    };
-    request: {
-      id: string;
-      title: string;
-      description: string;
-      submitText: string;
-      fields: {
-        name: { label: string; required: boolean };
-        phone: { label: string; required: boolean };
-        email: { label: string; required: boolean };
-        message: { label: string; required: boolean };
-        consent: { label: string; required: boolean };
-      };
-      consentLinks: {
-        privacy: { text: string; href: string };
-        terms: { prefix: string; text: string; href: string };
-      };
-    };
-    certifications: { id: string; title: string };
-    contacts: {
-      id: string;
-      title: string;
-      email: string;
-      phoneText: string;
-      phoneHref: string;
-      hours: string;
-      address: string;
-      socials: Array<{ type: string; href: string; label: string }>;
-    };
-  };
-  footer: {
-    copyright: string;
-    links: Array<{ text: string; href: string }>;
-  };
-  cookie: {
-    enabled: boolean;
-    text: string;
-    link: { text: string; href: string };
-  };
-};
+const nonEmptyString = z.string().trim().min(1);
+const hexColorString = z.string().regex(/^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/);
+
+const linkSchema = z
+  .object({
+    text: nonEmptyString,
+    href: nonEmptyString,
+  })
+  .strict();
+
+const homeContentSchema = z
+  .object({
+    site: z
+      .object({
+        lang: nonEmptyString,
+        title: nonEmptyString,
+        brandName: nonEmptyString,
+        description: nonEmptyString,
+        keywords: z.string().optional(),
+      })
+      .strict(),
+    assets: z
+      .object({
+        favicon: nonEmptyString,
+        logo: nonEmptyString,
+        heroImage: nonEmptyString,
+        formImage: nonEmptyString,
+        contactsImage: nonEmptyString,
+        certifications: z
+          .array(
+            z
+              .object({
+                image: nonEmptyString,
+                title: nonEmptyString,
+                width: z.number().positive(),
+                height: z.number().positive(),
+              })
+              .strict(),
+          )
+          .min(1),
+      })
+      .strict(),
+    theme: z
+      .object({
+        accent: hexColorString,
+        bgDark: hexColorString,
+        bgLight: hexColorString,
+      })
+      .strict(),
+    nav: z
+      .object({
+        header: z
+          .object({
+            items: z.array(linkSchema).min(1),
+            cta: linkSchema,
+          })
+          .strict(),
+      })
+      .strict(),
+    sections: z
+      .object({
+        hero: z
+          .object({
+            title: nonEmptyString,
+            text: nonEmptyString,
+            buttons: z.array(linkSchema).min(1),
+          })
+          .strict(),
+        about: z
+          .object({
+            id: nonEmptyString,
+            eyebrow: nonEmptyString,
+            title: nonEmptyString,
+            text: nonEmptyString,
+            stats: z
+              .array(
+                z
+                  .object({
+                    value: nonEmptyString,
+                    label: nonEmptyString,
+                  })
+                  .strict(),
+              )
+              .min(1),
+            note: nonEmptyString,
+          })
+          .strict(),
+        services: z
+          .object({
+            id: nonEmptyString,
+            title: nonEmptyString,
+            subtitle: nonEmptyString,
+            main: z.array(nonEmptyString).min(1),
+            other: z.array(nonEmptyString).min(1),
+          })
+          .strict(),
+        request: z
+          .object({
+            id: nonEmptyString,
+            title: nonEmptyString,
+            description: nonEmptyString,
+            submitText: nonEmptyString,
+            fields: z
+              .object({
+                name: z.object({ label: nonEmptyString, required: z.boolean() }).strict(),
+                phone: z.object({ label: nonEmptyString, required: z.boolean() }).strict(),
+                email: z.object({ label: nonEmptyString, required: z.boolean() }).strict(),
+                message: z.object({ label: nonEmptyString, required: z.boolean() }).strict(),
+                consent: z.object({ label: nonEmptyString, required: z.boolean() }).strict(),
+              })
+              .strict(),
+            messages: z
+              .object({
+                invalidForm: nonEmptyString,
+                success: nonEmptyString,
+              })
+              .strict(),
+            consentLinks: z
+              .object({
+                privacy: linkSchema,
+                terms: z
+                  .object({
+                    prefix: nonEmptyString,
+                    text: nonEmptyString,
+                    href: nonEmptyString,
+                  })
+                  .strict(),
+              })
+              .strict(),
+          })
+          .strict(),
+        certifications: z
+          .object({
+            id: nonEmptyString,
+            title: nonEmptyString,
+          })
+          .strict(),
+        contacts: z
+          .object({
+            id: nonEmptyString,
+            title: nonEmptyString,
+            email: nonEmptyString,
+            phoneText: nonEmptyString,
+            phoneHref: nonEmptyString,
+            hours: nonEmptyString,
+            socials: z
+              .array(
+                z
+                  .object({
+                    type: nonEmptyString,
+                    href: nonEmptyString,
+                    label: nonEmptyString,
+                  })
+                  .strict(),
+              )
+              .min(1),
+          })
+          .strict(),
+      })
+      .strict(),
+    footer: z
+      .object({
+        copyright: nonEmptyString,
+        links: z.array(linkSchema).min(1),
+      })
+      .strict(),
+    cookie: z
+      .object({
+        enabled: z.boolean(),
+        acceptText: nonEmptyString,
+        text: nonEmptyString,
+        link: linkSchema,
+      })
+      .strict(),
+  })
+  .strict();
+
+export type HomeContent = z.infer<typeof homeContentSchema>;
 
 let cached: HomeContent | null = null;
+
+function formatIssuePath(pathItems: Array<string | number>): string {
+  if (pathItems.length === 0) return "(root)";
+
+  return pathItems
+    .map((item, index) => {
+      if (typeof item === "number") return `[${item}]`;
+      return index === 0 ? item : `.${item}`;
+    })
+    .join("");
+}
 
 export async function loadHomeContent(): Promise<HomeContent> {
   if (cached) return cached;
@@ -100,6 +203,17 @@ export async function loadHomeContent(): Promise<HomeContent> {
   // Using `process.cwd()` keeps the content path stable for both dev and build.
   const filePath = path.join(process.cwd(), "src", "content", "home.yml");
   const raw = await fs.readFile(filePath, "utf-8");
-  cached = YAML.parse(raw) as HomeContent;
+
+  const parsedYaml = YAML.parse(raw);
+  const validated = homeContentSchema.safeParse(parsedYaml);
+
+  if (!validated.success) {
+    const details = validated.error.issues
+      .map((issue) => `${formatIssuePath(issue.path)}: ${issue.message}`)
+      .join("\n");
+    throw new Error(`Invalid content file src/content/home.yml:\n${details}`);
+  }
+
+  cached = validated.data;
   return cached;
 }

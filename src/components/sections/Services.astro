@@ -12,102 +12,85 @@ type Props = {
 const { id, title, subtitle, main, other } = Astro.props;
 ---
 
-<section id={id} class="section section--light">
-  <div class="container services">
-    <h2 class="h2">{title}</h2>
-    <p class="lead services__subtitle">{subtitle}</p>
+<section id={id} class="section section--light services">
+  <div class="ds-container ds-container_type_short-color ds-container_has-backed services__container">
+    <div class="ds-container__title-wrapper">
+      <h2 class="ds-container__title">{title}</h2>
+      <strong class="ds-container__subtitle">{subtitle}</strong>
+    </div>
 
-    <div class="services__grid">
-      <div class="services__col">
-        <h3 class="services__h3">Основные услуги</h3>
-        <ul class="services__main">
-          {main.map((item) => (
-            <li class="services__main-item">
-              <Icon name="check" class="services__check" size={20} />
-              <span>{item}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
+    <div class="ds-container__content ds-container__content_backed services__backed">
+      <ul class="ds-list services__main">
+        {main.map((item) => (
+          <li class="ds-col-4 b-tags__main-item">
+            <span class="ds-static-icon ds-static-icon_type_outline ds-static-icon_size_m b-tags__icon">
+              <Icon name="check" size={24} class="ds-static-icon__icon" />
+            </span>
+            <span class="b-tags__main-item-text">{item}</span>
+          </li>
+        ))}
+      </ul>
 
-      <div class="services__col">
-        <h3 class="services__h3">Дополнительно</h3>
-        <ul class="services__other">
-          {other.map((item) => (
-            <li class="services__pill">{item}</li>
-          ))}
-        </ul>
-      </div>
+      <div class="ds-divider b-tags__divider" role="presentation"></div>
+
+      <ul class="ds-tags-list services__tags">
+        {other.map((item) => (
+          <li class="services__tag">
+            <span class="ds-tag">{item}</span>
+          </li>
+        ))}
+      </ul>
     </div>
   </div>
 </section>
 
 <style>
-  .services__subtitle {
-    white-space: pre-line;
-    max-width: 920px;
-  }
-
-  .services__grid {
-    margin-top: 28px;
-    display: grid;
-    grid-template-columns: 1.1fr 0.9fr;
-    gap: 26px;
-    align-items: start;
-  }
-
-  .services__h3 {
-    margin: 0 0 12px;
-    font-size: 18px;
-    letter-spacing: -0.01em;
-  }
-
-  .services__main {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    gap: 10px;
-  }
-
-  .services__main-item {
+  .b-tags__main-item {
     display: flex;
-    gap: 10px;
+    gap: 8px;
     align-items: flex-start;
-    line-height: 1.45;
-    padding: 10px 12px;
-    border-radius: 14px;
-    border: 1px solid rgba(16, 17, 18, 0.08);
-    background: #fff;
   }
 
-  .services__check {
-    color: var(--accent);
-    flex: 0 0 auto;
-    margin-top: 1px;
+  .b-tags__icon {
+    flex-shrink: 0;
   }
 
-  .services__other {
-    list-style: none;
+  .b-tags__main-item-text {
+    color: var(--text-dark);
+    font-size: clamp(16px, 1.1vw + 12px, 19px);
+    font-weight: 500;
+    line-height: 1.55;
+    padding-top: 4px;
+  }
+
+  .b-tags__divider {
+    margin: 24px 0;
+    background: var(--border-on-light);
+  }
+
+  .services__tags {
     margin: 0;
-    padding: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
   }
 
-  .services__pill {
-    border: 1px solid rgba(16, 17, 18, 0.1);
-    background: rgba(255, 255, 255, 0.7);
-    border-radius: 999px;
-    padding: 10px 14px;
-    line-height: 1.2;
+  .services__tag {
+    list-style: none;
   }
 
-  @media (max-width: 980px) {
-    .services__grid {
-      grid-template-columns: 1fr;
+  @media (min-width: 620px) {
+    .b-tags__main-item {
+      gap: 12px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .b-tags__main-item-text {
+      font-size: 20px;
+      line-height: 1.5;
+      padding-top: 8px;
+    }
+
+    .b-tags__divider {
+      margin: 32px 0;
     }
   }
 </style>
-
