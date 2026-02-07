@@ -165,11 +165,11 @@ a {
   width: 100%;
   max-width: var(--container);
   margin-inline: auto;
-  padding-inline: clamp(16px, 3vw, 28px);
+  padding-inline: clamp(18px, 4vw, 32px);
 }
 
 .section {
-  padding-block: clamp(56px, 6vw, 96px);
+  padding-block: clamp(42px, 6vw, 96px);
   scroll-margin-top: calc(var(--header-height) + 20px);
 }
 
@@ -309,7 +309,7 @@ a {
   font-weight: 500;
   text-align: left;
   color: inherit;
-  white-space: pre-wrap;
+  white-space: normal;
 }
 
 .section--dark .ds-container__subtitle {
@@ -330,13 +330,11 @@ a {
     font-size: clamp(30px, 3vw, 42px);
     line-height: 1.12;
     letter-spacing: -0.03em;
-    text-align: center;
   }
 
   .ds-container__subtitle {
     font-size: 16px;
     line-height: 1.6;
-    text-align: center;
   }
 }
 
@@ -357,20 +355,20 @@ a {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  margin-bottom: 22px;
+  margin-bottom: 18px;
 }
 
 @media (min-width: 620px) {
   .ds-container__title-wrapper {
     gap: 12px;
-    margin-bottom: 44px;
+    margin-bottom: 30px;
   }
 }
 
 @media (min-width: 1024px) {
   .ds-container__title-wrapper {
     gap: 16px;
-    margin-bottom: 68px;
+    margin-bottom: 44px;
   }
 }
 
@@ -388,7 +386,7 @@ a {
   background: var(--surface-2);
   border: 1px solid var(--border-on-light);
   border-radius: var(--radius-ms);
-  padding: 16px;
+  padding: 18px;
 }
 
 @media (min-width: 620px) {
@@ -399,7 +397,7 @@ a {
 
 @media (min-width: 1024px) {
   .ds-container__content_backed {
-    padding: 56px;
+    padding: 40px;
     border-radius: var(--radius-2xl);
   }
 }
@@ -506,8 +504,8 @@ a {
 .ds-feature-bubble {
   display: flex;
   flex-direction: row;
-  gap: 12px;
-  padding: 16px 16px;
+  gap: 10px;
+  padding: 14px;
   align-items: center;
   border-radius: var(--radius-m);
   border: 1px solid var(--border-on-light);
@@ -538,25 +536,26 @@ a {
   color: var(--text-light);
   display: flex;
   flex-shrink: 0;
-  font-size: 20px;
+  font-size: 19px;
   font-weight: 700;
-  height: 72px;
+  height: 68px;
   justify-content: center;
   letter-spacing: -0.02em;
   line-height: 1.1;
   text-align: center;
-  width: 72px;
+  width: 68px;
   overflow-wrap: anywhere;
 }
 
 .ds-feature-bubble__text {
   color: var(--text-dark);
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 600;
   letter-spacing: -0.02em;
-  line-height: 1.25;
-  white-space: pre-wrap;
+  line-height: 1.3;
+  white-space: normal;
   text-align: left;
+  margin: 0;
 }
 
 @media (min-width: 620px) {

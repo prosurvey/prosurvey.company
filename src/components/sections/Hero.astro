@@ -61,21 +61,21 @@ const { title, text, imageHref, buttons } = Astro.props;
     position: relative;
     z-index: 1;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: calc(100vh - var(--header-height));
-    padding-block: clamp(120px, 14vw, 200px);
-    padding-inline: clamp(16px, 3vw, 28px);
+    align-items: flex-start;
+    justify-content: flex-end;
+    min-height: clamp(520px, calc(92svh - var(--header-height)), 860px);
+    padding-block: clamp(54px, 11vw, 120px);
+    padding-inline: clamp(18px, 4vw, 32px);
   }
 
   .hero__content-wrapper {
     width: min(920px, 100%);
     margin-inline: auto;
-    text-align: center;
+    text-align: left;
   }
 
   .hero__title {
-    margin: 0 0 10px;
+    margin: 0 0 12px;
     color: var(--text-light);
     font-family: var(--font-display);
     font-size: clamp(30px, 4vw, 52px);
@@ -93,18 +93,20 @@ const { title, text, imageHref, buttons } = Astro.props;
     line-height: 1.6;
     color: rgb(var(--text-light-rgb) / 0.84);
     white-space: pre-line;
+    max-width: 34ch;
   }
 
   .hero__actions {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    margin-top: 20px;
+    align-items: stretch;
+    gap: 12px;
+    margin-top: 24px;
+    width: min(340px, 100%);
   }
 
   .hero__btn {
-    min-width: 168px;
+    width: 100%;
     font-size: 16px;
     font-weight: 600;
     line-height: 22px;
@@ -112,17 +114,62 @@ const { title, text, imageHref, buttons } = Astro.props;
   }
 
   @media (min-width: 620px) and (max-width: 1023px) {
+    .hero__content {
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - var(--header-height));
+      padding-block: clamp(92px, 12vw, 160px);
+    }
+
+    .hero__content-wrapper {
+      text-align: center;
+    }
+
+    .hero__text {
+      max-width: 52ch;
+      margin-inline: auto;
+    }
+
     .hero__actions {
+      align-items: center;
+      width: auto;
       margin-top: 24px;
+    }
+
+    .hero__btn {
+      min-width: 196px;
+      width: auto;
     }
   }
 
   @media (min-width: 1024px) {
+    .hero__content {
+      align-items: center;
+      justify-content: center;
+      min-height: calc(100vh - var(--header-height));
+      padding-block: clamp(120px, 14vw, 200px);
+    }
+
+    .hero__content-wrapper {
+      text-align: center;
+    }
+
+    .hero__text {
+      max-width: 58ch;
+      margin-inline: auto;
+    }
+
     .hero__actions {
       flex-direction: row;
       justify-content: center;
       gap: 12px;
       margin-top: 30px;
+      width: auto;
+    }
+
+    .hero__btn {
+      min-width: 168px;
+      width: auto;
     }
   }
 </style>

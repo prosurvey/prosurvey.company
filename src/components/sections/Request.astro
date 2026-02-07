@@ -31,7 +31,7 @@ const consentParts = fields.consent.label.includes(consentMarker)
 ---
 
 <section id={id} class="section request">
-  <div class="ds-container ds-container_type_short-color request__container">
+  <div class="ds-container">
     <div
       class="b-form__wrapper b-form__wrapper_theme_full"
       style={`background: linear-gradient(180deg, rgb(var(--bg-dark-rgb) / 0.78), rgb(var(--bg-dark-rgb) / 0.78)), center/cover url(${imageHref})`}
@@ -223,7 +223,7 @@ const consentParts = fields.consent.label.includes(consentMarker)
   .b-form__wrapper {
     border-radius: var(--radius-l);
     overflow: hidden;
-    padding-block: clamp(32px, 6vw, 88px);
+    padding-block: clamp(26px, 6vw, 88px);
     padding-inline: clamp(16px, 4vw, 56px);
     background-position: center;
     background-size: cover;
@@ -239,7 +239,7 @@ const consentParts = fields.consent.label.includes(consentMarker)
     display: flex;
     flex-direction: column;
     position: relative;
-    padding: clamp(18px, 3vw, 30px);
+    padding: clamp(16px, 3vw, 30px);
     border-radius: var(--radius-xl);
     border: 1px solid rgb(var(--text-light-rgb) / 0.16);
     background: rgb(var(--bg-dark-rgb) / 0.64);
@@ -255,7 +255,7 @@ const consentParts = fields.consent.label.includes(consentMarker)
     font-weight: 600;
     letter-spacing: -0.03em;
     line-height: 1.12;
-    text-align: center;
+    text-align: left;
   }
 
   .ds-form__description {
@@ -264,8 +264,8 @@ const consentParts = fields.consent.label.includes(consentMarker)
     font-size: clamp(15px, 1.1vw + 12px, 18px);
     font-weight: 400;
     line-height: 1.6;
-    text-align: center;
-    white-space: pre-wrap;
+    text-align: left;
+    white-space: normal;
   }
 
   .ds-form__item {
@@ -418,7 +418,7 @@ const consentParts = fields.consent.label.includes(consentMarker)
 
   .ds-checkbox {
     display: grid;
-    grid-template-columns: 20px minmax(0, 1fr);
+    grid-template-columns: 24px minmax(0, 1fr);
     column-gap: 12px;
     row-gap: 0;
     align-items: start;
@@ -426,10 +426,10 @@ const consentParts = fields.consent.label.includes(consentMarker)
 
   .ds-checkbox__outer {
     display: block;
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
     position: relative;
-    margin-top: 1px;
+    margin-top: 2px;
   }
 
   .ds-checkbox__input {
@@ -446,9 +446,13 @@ const consentParts = fields.consent.label.includes(consentMarker)
     width: 100%;
     height: 100%;
     display: block;
-    border-radius: var(--radius-2xs);
-    border: 1px solid rgb(var(--text-light-rgb) / 0.42);
-    background: rgb(var(--text-light-rgb) / 0.08);
+    border-radius: var(--radius-xs);
+    border: 1px solid rgb(var(--text-light-rgb) / 0.34);
+    background: linear-gradient(
+      160deg,
+      rgb(var(--text-light-rgb) / 0.1),
+      rgb(var(--text-light-rgb) / 0.05)
+    );
     box-shadow: inset 0 1px 1px rgb(0 0 0 / 0.2);
     position: relative;
     transition:
@@ -460,10 +464,10 @@ const consentParts = fields.consent.label.includes(consentMarker)
   .ds-checkbox__inner::after {
     content: "";
     position: absolute;
-    left: 6px;
-    top: 2px;
-    width: 5px;
-    height: 10px;
+    left: 8px;
+    top: 5px;
+    width: 6px;
+    height: 11px;
     border-right: 2px solid #fff;
     border-bottom: 2px solid #fff;
     opacity: 0;
@@ -507,12 +511,13 @@ const consentParts = fields.consent.label.includes(consentMarker)
     margin: 0;
     color: rgb(var(--text-light-rgb) / 0.82);
     font-size: 14px;
-    line-height: 19px;
+    line-height: 1.48;
     text-wrap: pretty;
+    overflow-wrap: anywhere;
   }
 
   .ds-checkbox__label .ds-link {
-    white-space: nowrap;
+    text-decoration-thickness: 1px;
   }
 
   .request__submit {
@@ -531,6 +536,7 @@ const consentParts = fields.consent.label.includes(consentMarker)
     font-size: 13px;
     line-height: 18px;
     color: var(--muted-on-dark);
+    text-align: left;
   }
 
   .ds-link {

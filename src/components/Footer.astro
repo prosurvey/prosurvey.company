@@ -39,13 +39,13 @@ const { navItems, links, copyright } = Astro.props;
     border-top: 1px solid var(--border-on-dark);
     background: var(--bg-dark);
     color: var(--text-light);
-    padding: 44px 0;
+    padding: 32px 0;
   }
 
   .footer__grid {
     display: grid;
-    gap: 18px;
-    text-align: center;
+    gap: 14px;
+    text-align: left;
   }
 
   .footer__nav-list {
@@ -54,8 +54,8 @@ const { navItems, links, copyright } = Astro.props;
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 14px;
-    align-items: center;
+    gap: 10px;
+    align-items: flex-start;
   }
 
   .footer__nav-link {
@@ -75,9 +75,10 @@ const { navItems, links, copyright } = Astro.props;
     margin: 0;
     padding: 0;
     display: flex;
-    gap: 10px 16px;
-    flex-wrap: wrap;
-    justify-content: center;
+    gap: 8px;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
   }
 
   .footer__link {
@@ -95,6 +96,10 @@ const { navItems, links, copyright } = Astro.props;
   }
 
   @media (min-width: 620px) {
+    .footer {
+      padding: 36px 0;
+    }
+
     .footer__grid {
       grid-template-columns: 1fr auto;
       grid-template-areas:
@@ -102,7 +107,7 @@ const { navItems, links, copyright } = Astro.props;
         "copy copy";
       align-items: center;
       text-align: left;
-      gap: 16px 18px;
+      gap: 14px 18px;
     }
 
     .footer__nav {
@@ -111,7 +116,11 @@ const { navItems, links, copyright } = Astro.props;
 
     .footer__links {
       grid-area: links;
+      flex-direction: row;
+      flex-wrap: wrap;
       justify-content: flex-end;
+      gap: 8px 14px;
+      align-items: center;
     }
 
     .footer__copyright {
@@ -143,7 +152,7 @@ const { navItems, links, copyright } = Astro.props;
 
   @media (min-width: 1024px) {
     .footer {
-      padding: 56px 0;
+      padding: 44px 0;
     }
 
     .footer__nav-link {
