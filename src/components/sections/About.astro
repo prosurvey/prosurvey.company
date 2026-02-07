@@ -12,19 +12,19 @@ const { id, eyebrow, title, text, stats, note } = Astro.props;
 ---
 
 <section id={id} class="section section--light about">
-  <div class="ds-container about__block about__block--intro">
+  <div class="ds-container ds-container_type_short-color about__block about__block--intro">
     <div class="ds-container__title-wrapper">
       <h2 class="ds-container__title">{title}</h2>
     </div>
     <div class="ds-container__content">
-      <p class="b-text__text">
+      <p class="b-text__text b-text__text_align_center">
         <strong class="b-text__insert-title">{eyebrow}</strong> — {text}
       </p>
     </div>
   </div>
 
-  <div class="ds-container about__block about__block--features">
-    <div class="ds-container__content">
+  <div class="ds-container ds-container_type_short-color about__block about__block--features">
+    <div class="ds-container__content ds-container__content_backed">
       <div class="b-features__wrapper b-features__wrapper_col-3">
         {stats.map((stat) => (
           <div class="ds-feature-bubble b-features__bubble">
@@ -36,9 +36,9 @@ const { id, eyebrow, title, text, stats, note } = Astro.props;
     </div>
   </div>
 
-  <div class="ds-container about__block about__block--note">
+  <div class="ds-container ds-container_type_short-color about__block about__block--note">
     <div class="ds-container__content">
-      <p class="b-text__text">
+      <p class="b-text__text b-text__text_align_center">
         <strong class="b-text__insert-title">{note}</strong>
       </p>
     </div>
@@ -50,54 +50,36 @@ const { id, eyebrow, title, text, stats, note } = Astro.props;
     padding: 0;
   }
 
+  .about .ds-container {
+    padding-inline: clamp(20px, 5vw, 32px);
+  }
+
   .about__block--intro {
-    padding: clamp(52px, 7vw, 88px) 0 18px;
+    padding: clamp(64px, 7vw, 92px) 0 24px;
   }
 
   .about__block--features {
-    padding: 18px 0;
+    padding: 24px 0;
   }
 
   .about__block--note {
-    padding: 24px 0 clamp(52px, 7vw, 88px);
-  }
-
-  @media (min-width: 620px) {
-    .about__block--intro {
-      padding-bottom: 22px;
-    }
-
-    .about__block--features {
-      padding: 22px 0;
-    }
-
-    .about__block--note {
-      padding-top: 30px;
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .about__block--intro {
-      padding-bottom: 28px;
-    }
-
-    .about__block--features {
-      padding: 28px 0;
-    }
-
-    .about__block--note {
-      padding-top: 40px;
-    }
+    padding: 36px 0 clamp(64px, 7vw, 92px);
   }
 
   .b-text__text {
     color: var(--text-dark);
     font-size: clamp(16px, 1.1vw + 12px, 20px);
     font-weight: 400;
-    line-height: 1.62;
+    line-height: 1.68;
     white-space: normal;
     word-break: break-word;
     margin: 0;
+    max-width: 64ch;
+    margin-inline: auto;
+  }
+
+  .b-text__text_align_center {
+    text-align: left;
   }
 
   .b-text__insert-title {
@@ -108,10 +90,14 @@ const { id, eyebrow, title, text, stats, note } = Astro.props;
 
   .b-features__wrapper {
     display: grid;
-    gap: 14px;
+    gap: 12px;
   }
 
   @media (min-width: 620px) {
+    .b-text__text_align_center {
+      text-align: center;
+    }
+
     .b-features__wrapper {
       gap: 16px;
       grid-template-columns: repeat(2, 1fr);

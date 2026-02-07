@@ -13,25 +13,25 @@ const { id, title, subtitle, main, other } = Astro.props;
 ---
 
 <section id={id} class="section section--light services">
-  <div class="ds-container services__container">
+  <div class="ds-container ds-container_type_short-color ds-container_has-backed services__container">
     <div class="ds-container__title-wrapper">
       <h2 class="ds-container__title">{title}</h2>
       <strong class="ds-container__subtitle">{subtitle}</strong>
     </div>
 
-    <div class="ds-container__content ds-container__content_backed">
+    <div class="ds-container__content ds-container__content_backed services__backed">
       <ul class="ds-list services__main">
         {main.map((item) => (
-          <li class="ds-col-4 services__main-item">
-            <span class="ds-static-icon ds-static-icon_type_outline ds-static-icon_size_m services__icon">
+          <li class="ds-col-4 b-tags__main-item">
+            <span class="ds-static-icon ds-static-icon_type_outline ds-static-icon_size_m b-tags__icon">
               <Icon name="check" size={24} class="ds-static-icon__icon" />
             </span>
-            <span class="services__main-item-text">{item}</span>
+            <span class="b-tags__main-item-text">{item}</span>
           </li>
         ))}
       </ul>
 
-      <div class="ds-divider services__divider" role="presentation"></div>
+      <div class="ds-divider b-tags__divider" role="presentation"></div>
 
       <ul class="ds-tags-list services__tags">
         {other.map((item) => (
@@ -45,46 +45,35 @@ const { id, title, subtitle, main, other } = Astro.props;
 </section>
 
 <style>
-  .services {
-    padding-top: clamp(36px, 6vw, 76px);
-    padding-bottom: clamp(48px, 6vw, 96px);
+  .services .ds-container {
+    padding-inline: clamp(20px, 5vw, 32px);
   }
 
-  .services__container .ds-container__title-wrapper {
-    margin-bottom: 16px;
-  }
-
-  .services__main {
-    margin: 0;
-    gap: 14px 12px;
-  }
-
-  .services__main-item {
+  .b-tags__main-item {
     display: flex;
-    gap: 10px;
+    gap: 8px;
     align-items: flex-start;
   }
 
-  .services__icon {
+  .b-tags__icon {
     flex-shrink: 0;
   }
 
-  .services__main-item-text {
+  .b-tags__main-item-text {
     color: var(--text-dark);
     font-size: clamp(16px, 1.1vw + 12px, 19px);
     font-weight: 500;
-    line-height: 1.48;
-    padding-top: 2px;
+    line-height: 1.55;
+    padding-top: 4px;
   }
 
-  .services__divider {
-    margin: 20px 0;
+  .b-tags__divider {
+    margin: 24px 0;
     background: var(--border-on-light);
   }
 
   .services__tags {
     margin: 0;
-    gap: 8px;
   }
 
   .services__tag {
@@ -92,31 +81,19 @@ const { id, title, subtitle, main, other } = Astro.props;
   }
 
   @media (min-width: 620px) {
-    .services__container .ds-container__title-wrapper {
-      margin-bottom: 22px;
-    }
-
-    .services__main-item {
+    .b-tags__main-item {
       gap: 12px;
-    }
-
-    .services__divider {
-      margin: 24px 0;
     }
   }
 
   @media (min-width: 1024px) {
-    .services__container .ds-container__title-wrapper {
-      margin-bottom: 32px;
-    }
-
-    .services__main-item-text {
+    .b-tags__main-item-text {
       font-size: 20px;
-      line-height: 1.42;
-      padding-top: 6px;
+      line-height: 1.5;
+      padding-top: 8px;
     }
 
-    .services__divider {
+    .b-tags__divider {
       margin: 32px 0;
     }
   }
