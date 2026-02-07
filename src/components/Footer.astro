@@ -39,13 +39,13 @@ const { navItems, links, copyright } = Astro.props;
     border-top: 1px solid var(--border-on-dark);
     background: var(--bg-dark);
     color: var(--text-light);
-    padding: 32px 0;
+    padding: 44px 0;
   }
 
   .footer__grid {
     display: grid;
-    gap: 14px;
-    text-align: left;
+    gap: 18px;
+    text-align: center;
   }
 
   .footer__nav-list {
@@ -53,9 +53,16 @@ const { navItems, links, copyright } = Astro.props;
     margin: 0;
     padding: 0;
     display: flex;
-    flex-direction: column;
-    gap: 10px;
-    align-items: flex-start;
+    flex-direction: row;
+    gap: 12px;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .footer__nav-item {
+    flex: 1;
+    text-align: center;
   }
 
   .footer__nav-link {
@@ -75,10 +82,9 @@ const { navItems, links, copyright } = Astro.props;
     margin: 0;
     padding: 0;
     display: flex;
-    gap: 8px;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: flex-start;
+    gap: 10px 16px;
+    flex-wrap: wrap;
+    justify-content: center;
   }
 
   .footer__link {
@@ -133,6 +139,11 @@ const { navItems, links, copyright } = Astro.props;
       gap: 12px 18px;
       justify-content: flex-start;
       align-items: center;
+    }
+
+    .footer__nav-item {
+      flex: 0 0 auto;
+      text-align: left;
     }
   }
 
