@@ -84,7 +84,7 @@ const socialItems = socials
   }
 
   .contacts__copy :global(.ds-container__title) {
-    text-align: center;
+    text-align: left;
     margin: 0;
   }
 
@@ -95,8 +95,6 @@ const socialItems = socials
 
   .contacts__title {
     margin: 0;
-    justify-self: center;
-    width: 100%;
   }
 
   .contacts__hours {
@@ -205,10 +203,8 @@ const socialItems = socials
     }
 
     .contacts__title {
-      grid-column: 1 / -1;
-      align-self: start;
-      justify-self: center;
-      margin-bottom: 2px;
+      grid-column: 1;
+      align-self: end;
     }
 
     .contacts__hours {
