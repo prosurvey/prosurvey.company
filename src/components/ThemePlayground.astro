@@ -1,39 +1,117 @@
 <section class="theme-playground" aria-label="Панель подбора цветов">
   <div class="theme-playground__inner">
-    <p class="theme-playground__title">Подбор цвета фона</p>
+    <p class="theme-playground__title">Подбор цвета</p>
 
-    <div class="theme-playground__controls">
-      <label class="theme-playground__field">
+    <div class="theme-playground__group" aria-label="Цвет фона">
+      <p class="theme-playground__group-title">Фон (RGB)</p>
+
+      <label class="theme-playground__channel" for="themePlaygroundBgRNumber">
         <span>R</span>
-        <input id="themePlaygroundR" type="number" min="0" max="255" step="1" inputmode="numeric" />
+        <input id="themePlaygroundBgRRange" type="range" min="0" max="255" step="1" />
+        <input
+          id="themePlaygroundBgRNumber"
+          type="number"
+          min="0"
+          max="255"
+          step="1"
+          inputmode="numeric"
+        />
       </label>
 
-      <label class="theme-playground__field">
+      <label class="theme-playground__channel" for="themePlaygroundBgGNumber">
         <span>G</span>
-        <input id="themePlaygroundG" type="number" min="0" max="255" step="1" inputmode="numeric" />
+        <input id="themePlaygroundBgGRange" type="range" min="0" max="255" step="1" />
+        <input
+          id="themePlaygroundBgGNumber"
+          type="number"
+          min="0"
+          max="255"
+          step="1"
+          inputmode="numeric"
+        />
       </label>
 
-      <label class="theme-playground__field">
+      <label class="theme-playground__channel" for="themePlaygroundBgBNumber">
         <span>B</span>
-        <input id="themePlaygroundB" type="number" min="0" max="255" step="1" inputmode="numeric" />
+        <input id="themePlaygroundBgBRange" type="range" min="0" max="255" step="1" />
+        <input
+          id="themePlaygroundBgBNumber"
+          type="number"
+          min="0"
+          max="255"
+          step="1"
+          inputmode="numeric"
+        />
       </label>
-
-      <button class="btn btn-secondary theme-playground__reset" type="button" id="themePlaygroundReset">Сброс</button>
     </div>
 
-    <div class="theme-playground__result">
-      <div class="theme-playground__pair">
-        <span>Фон:</span>
-        <strong id="themePlaygroundBgHex">#0F172A</strong>
+    <div class="theme-playground__group" aria-label="Акцентный цвет">
+      <p class="theme-playground__group-title">Акцент (RGB)</p>
+
+      <label class="theme-playground__toggle" for="themePlaygroundAutoAccent">
+        <input id="themePlaygroundAutoAccent" type="checkbox" checked />
+        <span>Высчитать акцентный цвет автоматически</span>
+      </label>
+
+      <label class="theme-playground__channel" for="themePlaygroundAccentRNumber">
+        <span>R</span>
+        <input id="themePlaygroundAccentRRange" type="range" min="0" max="255" step="1" />
+        <input
+          id="themePlaygroundAccentRNumber"
+          type="number"
+          min="0"
+          max="255"
+          step="1"
+          inputmode="numeric"
+        />
+      </label>
+
+      <label class="theme-playground__channel" for="themePlaygroundAccentGNumber">
+        <span>G</span>
+        <input id="themePlaygroundAccentGRange" type="range" min="0" max="255" step="1" />
+        <input
+          id="themePlaygroundAccentGNumber"
+          type="number"
+          min="0"
+          max="255"
+          step="1"
+          inputmode="numeric"
+        />
+      </label>
+
+      <label class="theme-playground__channel" for="themePlaygroundAccentBNumber">
+        <span>B</span>
+        <input id="themePlaygroundAccentBRange" type="range" min="0" max="255" step="1" />
+        <input
+          id="themePlaygroundAccentBNumber"
+          type="number"
+          min="0"
+          max="255"
+          step="1"
+          inputmode="numeric"
+        />
+      </label>
+    </div>
+
+    <div class="theme-playground__footer">
+      <div class="theme-playground__result">
+        <div class="theme-playground__pair">
+          <span>Фон:</span>
+          <strong id="themePlaygroundBgHex">#0F172A</strong>
+        </div>
+
+        <div class="theme-playground__pair">
+          <span>Акцент:</span>
+          <strong id="themePlaygroundAccentHex">#2C61D6</strong>
+        </div>
+
+        <div class="theme-playground__swatches" aria-hidden="true">
+          <span class="theme-playground__swatch" id="themePlaygroundBgSwatch"></span>
+          <span class="theme-playground__swatch" id="themePlaygroundAccentSwatch"></span>
+        </div>
       </div>
-      <div class="theme-playground__pair">
-        <span>Акцент:</span>
-        <strong id="themePlaygroundAccentHex">#2C61D6</strong>
-      </div>
-      <div class="theme-playground__swatches" aria-hidden="true">
-        <span class="theme-playground__swatch theme-playground__swatch--bg" id="themePlaygroundBgSwatch"></span>
-        <span class="theme-playground__swatch theme-playground__swatch--accent" id="themePlaygroundAccentSwatch"></span>
-      </div>
+
+      <button class="btn btn-secondary theme-playground__reset" type="button" id="themePlaygroundReset">Сброс</button>
     </div>
   </div>
 </section>
@@ -43,7 +121,7 @@
     background: var(--bg-light);
     color: var(--text-dark);
     border-top: 1px solid var(--border-on-light);
-    padding: 20px 0 24px;
+    padding: 18px 0 24px;
   }
 
   .theme-playground__inner {
@@ -52,65 +130,102 @@
     margin: 0 auto;
     padding-inline: clamp(18px, 4vw, 32px);
     display: grid;
-    gap: 14px;
+    gap: 16px;
   }
 
   .theme-playground__title {
     margin: 0;
     font-size: 15px;
     font-weight: 600;
-    line-height: 1.3;
     letter-spacing: 0.01em;
+    line-height: 1.3;
   }
 
-  .theme-playground__controls {
+  .theme-playground__group {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 96px));
     gap: 10px;
-    align-items: end;
+    padding: 12px;
+    border: 1px solid rgb(var(--text-dark-rgb) / 0.12);
+    border-radius: var(--radius-sm);
+    background: #fff;
   }
 
-  .theme-playground__field {
-    display: grid;
-    gap: 6px;
-    font-size: 12px;
-    line-height: 1;
+  .theme-playground__group-title {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.2;
+    font-weight: 600;
     color: var(--muted-on-light);
   }
 
-  .theme-playground__field input {
+  .theme-playground__toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    line-height: 1.4;
+    color: var(--text-dark);
+  }
+
+  .theme-playground__toggle input {
+    inline-size: 16px;
+    block-size: 16px;
+  }
+
+  .theme-playground__channel {
+    display: grid;
+    grid-template-columns: 18px 1fr 68px;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--muted-on-light);
+  }
+
+  .theme-playground__channel input[type="range"] {
+    width: 100%;
+    margin: 0;
+    accent-color: var(--accent);
+  }
+
+  .theme-playground__channel input[type="number"] {
     width: 100%;
     appearance: textfield;
     border: 1px solid rgb(var(--text-dark-rgb) / 0.2);
     border-radius: var(--radius-xs);
+    padding: 5px 8px;
     background: #fff;
     color: var(--text-dark);
-    padding: 8px 10px;
     font: inherit;
     line-height: 1.2;
   }
 
-  .theme-playground__field input::-webkit-outer-spin-button,
-  .theme-playground__field input::-webkit-inner-spin-button {
+  .theme-playground__channel input[type="number"]::-webkit-outer-spin-button,
+  .theme-playground__channel input[type="number"]::-webkit-inner-spin-button {
     appearance: none;
     margin: 0;
   }
 
-  .theme-playground__field input:focus-visible,
+  .theme-playground__channel input[type="range"]:disabled,
+  .theme-playground__channel input[type="number"]:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .theme-playground__channel input:focus-visible,
+  .theme-playground__toggle input:focus-visible,
   .theme-playground__reset:focus-visible {
     outline: 3px solid rgb(var(--accent-rgb) / 0.24);
     outline-offset: 2px;
   }
 
-  .theme-playground__reset {
-    justify-self: start;
-    padding: 8px 12px;
-    min-height: 38px;
+  .theme-playground__footer {
+    display: grid;
+    gap: 10px;
   }
 
   .theme-playground__result {
     display: grid;
-    gap: 8px;
+    gap: 6px;
   }
 
   .theme-playground__pair {
@@ -123,47 +238,49 @@
 
   .theme-playground__pair strong {
     color: var(--text-dark);
-    font-weight: 600;
     letter-spacing: 0.02em;
+    font-weight: 600;
   }
 
   .theme-playground__swatches {
     display: inline-flex;
-    align-items: center;
     gap: 8px;
     margin-top: 2px;
   }
 
   .theme-playground__swatch {
-    width: 28px;
-    height: 28px;
+    width: 26px;
+    height: 26px;
     border-radius: 999px;
     border: 1px solid rgb(var(--text-dark-rgb) / 0.14);
     box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.16);
   }
 
-  .theme-playground__swatch--bg {
-    background: var(--bg-dark);
+  .theme-playground__reset {
+    justify-self: start;
+    padding: 8px 12px;
+    min-height: 36px;
   }
 
-  .theme-playground__swatch--accent {
-    background: var(--accent);
-  }
-
-  @media (min-width: 860px) {
+  @media (min-width: 940px) {
     .theme-playground__inner {
-      grid-template-columns: auto 1fr;
-      align-items: center;
-      gap: 12px 24px;
+      grid-template-columns: 1fr 1fr auto;
+      align-items: start;
+      gap: 14px;
     }
 
-    .theme-playground__controls {
-      grid-template-columns: repeat(3, minmax(0, 84px)) auto;
-      justify-content: start;
+    .theme-playground__title {
+      grid-column: 1 / -1;
+    }
+
+    .theme-playground__footer {
+      align-self: stretch;
+      grid-template-rows: 1fr auto;
+      justify-items: end;
+      min-width: 180px;
     }
 
     .theme-playground__result {
-      justify-self: end;
       text-align: right;
     }
 
@@ -173,6 +290,10 @@
 
     .theme-playground__swatches {
       justify-content: flex-end;
+    }
+
+    .theme-playground__reset {
+      justify-self: end;
     }
   }
 </style>
@@ -221,7 +342,7 @@
       const g = Number.parseInt(normalized.slice(2, 4), 16);
       const b = Number.parseInt(normalized.slice(4, 6), 16);
 
-      if ([r, g, b].some((n) => Number.isNaN(n))) return null;
+      if ([r, g, b].some((channel) => Number.isNaN(channel))) return null;
       return [r, g, b];
     }
 
@@ -229,11 +350,13 @@
     if (!rgbMatch) return null;
 
     const channels = rgbMatch[1]
-      .split(",")
+      .replace(/\//g, " ")
+      .split(/[,\s]+/)
+      .filter(Boolean)
       .slice(0, 3)
       .map((part) => clampByte(part.trim()));
 
-    if (channels.length !== 3 || channels.some((n) => Number.isNaN(n))) return null;
+    if (channels.length !== 3 || channels.some((channel) => Number.isNaN(channel))) return null;
     return channels;
   };
 
@@ -257,7 +380,6 @@
 
     const l = (max + min) / 2;
     const s = delta === 0 ? 0 : delta / (1 - Math.abs(2 * l - 1));
-
     return [h, s * 100, l * 100];
   };
 
@@ -330,76 +452,181 @@
 
   const readThemeRgb = (styles, name, fallback) => parseCssColor(styles.getPropertyValue(name)) ?? fallback;
 
+  const sameRgb = (a, b) => a.length === b.length && a.every((value, index) => value === b[index]);
+
   const initThemePlayground = () => {
     const root = document.querySelector(".theme-playground");
     if (!root) return;
 
-    const inputR = root.querySelector("#themePlaygroundR");
-    const inputG = root.querySelector("#themePlaygroundG");
-    const inputB = root.querySelector("#themePlaygroundB");
-    const resetButton = root.querySelector("#themePlaygroundReset");
-    const bgHexNode = root.querySelector("#themePlaygroundBgHex");
-    const accentHexNode = root.querySelector("#themePlaygroundAccentHex");
-    const bgSwatch = root.querySelector("#themePlaygroundBgSwatch");
-    const accentSwatch = root.querySelector("#themePlaygroundAccentSwatch");
+    const el = {
+      bg: {
+        rRange: root.querySelector("#themePlaygroundBgRRange"),
+        gRange: root.querySelector("#themePlaygroundBgGRange"),
+        bRange: root.querySelector("#themePlaygroundBgBRange"),
+        rNumber: root.querySelector("#themePlaygroundBgRNumber"),
+        gNumber: root.querySelector("#themePlaygroundBgGNumber"),
+        bNumber: root.querySelector("#themePlaygroundBgBNumber"),
+      },
+      accent: {
+        rRange: root.querySelector("#themePlaygroundAccentRRange"),
+        gRange: root.querySelector("#themePlaygroundAccentGRange"),
+        bRange: root.querySelector("#themePlaygroundAccentBRange"),
+        rNumber: root.querySelector("#themePlaygroundAccentRNumber"),
+        gNumber: root.querySelector("#themePlaygroundAccentGNumber"),
+        bNumber: root.querySelector("#themePlaygroundAccentBNumber"),
+      },
+      autoAccent: root.querySelector("#themePlaygroundAutoAccent"),
+      resetButton: root.querySelector("#themePlaygroundReset"),
+      bgHexNode: root.querySelector("#themePlaygroundBgHex"),
+      accentHexNode: root.querySelector("#themePlaygroundAccentHex"),
+      bgSwatch: root.querySelector("#themePlaygroundBgSwatch"),
+      accentSwatch: root.querySelector("#themePlaygroundAccentSwatch"),
+    };
 
-    if (!inputR || !inputG || !inputB || !resetButton || !bgHexNode || !accentHexNode || !bgSwatch || !accentSwatch) return;
+    const allInputs = [
+      el.bg.rRange,
+      el.bg.gRange,
+      el.bg.bRange,
+      el.bg.rNumber,
+      el.bg.gNumber,
+      el.bg.bNumber,
+      el.accent.rRange,
+      el.accent.gRange,
+      el.accent.bRange,
+      el.accent.rNumber,
+      el.accent.gNumber,
+      el.accent.bNumber,
+      el.autoAccent,
+      el.resetButton,
+      el.bgHexNode,
+      el.accentHexNode,
+      el.bgSwatch,
+      el.accentSwatch,
+    ];
+
+    if (allInputs.some((node) => !node)) return;
 
     const styles = getComputedStyle(document.body);
     const defaultBg = readThemeRgb(styles, "--bg-dark", [15, 23, 42]);
+    const defaultAccent = readThemeRgb(styles, "--accent", [44, 97, 214]);
     const textOnAccent = readThemeRgb(styles, "--text-light", [248, 250, 252]);
 
-    const setInputValues = (rgb) => {
-      inputR.value = String(rgb[0]);
-      inputG.value = String(rgb[1]);
-      inputB.value = String(rgb[2]);
+    const state = {
+      bg: [...defaultBg],
+      accent: [...defaultAccent],
+      autoAccent: true,
     };
 
-    const renderPreview = (bgRgb, accentRgb) => {
-      const bgHex = toHex(bgRgb);
-      const accentHex = toHex(accentRgb);
+    const channels = ["r", "g", "b"];
 
-      bgHexNode.textContent = bgHex;
-      accentHexNode.textContent = accentHex;
-      bgSwatch.style.background = bgHex;
-      accentSwatch.style.background = accentHex;
+    const setTripletControls = (controls, rgb) => {
+      channels.forEach((key, index) => {
+        controls[`${key}Range`].value = String(rgb[index]);
+        controls[`${key}Number`].value = String(rgb[index]);
+      });
     };
 
-    const applyTheme = (bgRgb) => {
-      const accentRgb = deriveAccentFromBg(bgRgb, textOnAccent);
+    const setAccentControlsDisabled = (disabled) => {
+      channels.forEach((key) => {
+        controlsSetDisabled(el.accent[`${key}Range`], disabled);
+        controlsSetDisabled(el.accent[`${key}Number`], disabled);
+      });
+    };
 
+    const controlsSetDisabled = (node, disabled) => {
+      node.disabled = disabled;
+    };
+
+    const readTripletFromControls = (controls) =>
+      channels.map((key) => clampByte(controls[`${key}Number`].value || controls[`${key}Range`].value));
+
+    const writeThemeVars = (bgRgb, accentRgb) => {
       document.body.style.setProperty("--bg-dark", toHex(bgRgb));
       document.body.style.setProperty("--bg-dark-rgb", toTriplet(bgRgb));
       document.body.style.setProperty("--accent", toHex(accentRgb));
       document.body.style.setProperty("--accent-rgb", toTriplet(accentRgb));
       document.body.style.setProperty("--accent-hover", toHex(darken(accentRgb, 0.12)));
       document.body.style.setProperty("--accent-active", toHex(darken(accentRgb, 0.24)));
-
-      renderPreview(bgRgb, accentRgb);
     };
 
-    const readInputs = () => [clampByte(inputR.value), clampByte(inputG.value), clampByte(inputB.value)];
+    const render = () => {
+      const bgRgb = state.bg.map((value) => clampByte(value));
+      const accentRgb = state.autoAccent
+        ? sameRgb(bgRgb, defaultBg)
+          ? [...defaultAccent]
+          : deriveAccentFromBg(bgRgb, textOnAccent)
+        : state.accent.map((value) => clampByte(value));
 
-    setInputValues(defaultBg);
-    applyTheme(defaultBg);
+      state.bg = bgRgb;
+      state.accent = accentRgb;
 
-    [inputR, inputG, inputB].forEach((input) => {
-      input.addEventListener("input", () => {
-        const nextBg = readInputs();
-        setInputValues(nextBg);
-        applyTheme(nextBg);
+      setTripletControls(el.bg, bgRgb);
+      setTripletControls(el.accent, accentRgb);
+      setAccentControlsDisabled(state.autoAccent);
+      el.autoAccent.checked = state.autoAccent;
+
+      const bgHex = toHex(bgRgb);
+      const accentHex = toHex(accentRgb);
+
+      el.bgHexNode.textContent = bgHex;
+      el.accentHexNode.textContent = accentHex;
+      el.bgSwatch.style.background = bgHex;
+      el.accentSwatch.style.background = accentHex;
+
+      writeThemeVars(bgRgb, accentRgb);
+    };
+
+    const bindTripletControls = (controls, onChange) => {
+      channels.forEach((key, index) => {
+        const range = controls[`${key}Range`];
+        const number = controls[`${key}Number`];
+
+        const applyFromRange = () => {
+          const value = clampByte(range.value);
+          number.value = String(value);
+          onChange(index, value);
+        };
+
+        const applyFromNumber = () => {
+          const value = clampByte(number.value);
+          number.value = String(value);
+          range.value = String(value);
+          onChange(index, value);
+        };
+
+        range.addEventListener("input", applyFromRange);
+        number.addEventListener("input", applyFromNumber);
+        number.addEventListener("blur", applyFromNumber);
       });
+    };
 
-      input.addEventListener("blur", () => {
-        const nextBg = readInputs();
-        setInputValues(nextBg);
-      });
+    bindTripletControls(el.bg, (index, value) => {
+      state.bg[index] = value;
+      render();
     });
 
-    resetButton.addEventListener("click", () => {
-      setInputValues(defaultBg);
-      applyTheme(defaultBg);
+    bindTripletControls(el.accent, (index, value) => {
+      if (state.autoAccent) return;
+      state.accent[index] = value;
+      render();
     });
+
+    el.autoAccent.addEventListener("change", () => {
+      state.autoAccent = el.autoAccent.checked;
+      if (!state.autoAccent) {
+        state.accent = readTripletFromControls(el.accent);
+      }
+      render();
+    });
+
+    el.resetButton.addEventListener("click", () => {
+      state.bg = [...defaultBg];
+      state.accent = [...defaultAccent];
+      state.autoAccent = true;
+      render();
+    });
+
+    render();
   };
 
   if (document.readyState === "loading") {
