@@ -3,6 +3,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import CookieBanner from "../components/CookieBanner.astro";
 import Footer from "../components/Footer.astro";
 import Header from "../components/Header.astro";
+import ThemePlayground from "../components/ThemePlayground.astro";
 import About from "../components/sections/About.astro";
 import Certifications from "../components/sections/Certifications.astro";
 import Contacts from "../components/sections/Contacts.astro";
@@ -92,6 +93,7 @@ const content = await loadHomeContent();
     links={content.footer.links}
     copyright={content.footer.copyright}
   />
+  <ThemePlayground />
 
   {content.cookie.enabled ? (
     <CookieBanner text={content.cookie.text} acceptText={content.cookie.acceptText} link={content.cookie.link} />
