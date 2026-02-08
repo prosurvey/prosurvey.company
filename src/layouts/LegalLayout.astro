@@ -8,16 +8,22 @@ import { loadHomeContent } from "../lib/content";
 type Props = {
   title: string;
   description?: string;
+  frontmatter?: {
+    title?: string;
+    description?: string;
+  };
 };
 
-const { title, description } = Astro.props;
+const { title, description, frontmatter } = Astro.props;
+const resolvedTitle = title ?? frontmatter?.title ?? "";
+const resolvedDescription = description ?? frontmatter?.description ?? resolvedTitle;
 const home = await loadHomeContent();
 ---
 
 <BaseLayout
   lang={home.site.lang}
-  title={`${title} — ${home.site.brandName}`}
-  description={description ?? title}
+  title={`${resolvedTitle} — ${home.site.brandName}`}
+  description={resolvedDescription}
   keywords={home.site.keywords}
   faviconHref={home.assets.favicon}
   theme={home.theme}
@@ -31,7 +37,7 @@ const home = await loadHomeContent();
 
   <main class="section section--light legal">
     <div class="container legal__inner">
-      <h1 class="legal__title">{title}</h1>
+      <h1 class="legal__title">{resolvedTitle}</h1>
       <article class="legal__content">
         <slot />
       </article>
@@ -44,25 +50,31 @@ const home = await loadHomeContent();
 </BaseLayout>
 
 <style>
+  .legal {
+    padding-block: clamp(48px, 6vw, 92px);
+  }
+
   .legal__inner {
-    max-width: 920px;
+    max-width: 980px;
+    display: grid;
+    gap: clamp(16px, 2.6vw, 26px);
   }
 
   .legal__title {
-    margin: 0 0 18px;
+    margin: 0;
     font-family: var(--font-display);
     font-size: clamp(28px, 3.2vw, 44px);
-    line-height: 1.1;
+    line-height: 1.08;
     letter-spacing: -0.03em;
     font-weight: 600;
   }
 
   .legal__content {
-    border-radius: var(--radius-xl);
+    border-radius: var(--radius-2xl);
     border: 1px solid var(--border-on-light);
-    background: var(--surface-1);
+    background: linear-gradient(180deg, #fff 0%, var(--surface-2) 100%);
     box-shadow: var(--shadow-sm);
-    padding: clamp(18px, 3.2vw, 34px);
+    padding: clamp(20px, 3.5vw, 38px);
     overflow-wrap: anywhere;
   }
 
@@ -73,20 +85,20 @@ const home = await loadHomeContent();
   .legal__content :global(p),
   .legal__content :global(li) {
     font-size: 16px;
-    line-height: 1.7;
+    line-height: 1.72;
   }
 
   .legal__content :global(h2) {
-    margin: 28px 0 12px;
+    margin: 32px 0 14px;
     font-family: var(--font-display);
-    font-size: clamp(20px, 2vw, 26px);
+    font-size: clamp(20px, 2vw, 27px);
     letter-spacing: -0.03em;
     line-height: 1.15;
     font-weight: 600;
   }
 
   .legal__content :global(h3) {
-    margin: 20px 0 10px;
+    margin: 24px 0 12px;
     font-family: var(--font-display);
     font-size: 18px;
     letter-spacing: -0.02em;
@@ -95,20 +107,20 @@ const home = await loadHomeContent();
   }
 
   .legal__content :global(p) {
-    margin: 0 0 12px;
+    margin: 0 0 14px;
     color: rgb(var(--text-dark-rgb) / 0.84);
-    line-height: 1.7;
+    line-height: 1.72;
   }
 
   .legal__content :global(ul),
   .legal__content :global(ol) {
-    margin: 10px 0 14px 22px;
+    margin: 12px 0 16px 24px;
     color: rgb(var(--text-dark-rgb) / 0.84);
-    line-height: 1.66;
+    line-height: 1.72;
   }
 
   .legal__content :global(li) {
-    margin: 6px 0;
+    margin: 8px 0;
   }
 
   .legal__content :global(a) {
@@ -127,6 +139,17 @@ const home = await loadHomeContent();
     border: 0;
     height: 1px;
     background: var(--border-on-light);
-    margin: 22px 0;
+    margin: 24px 0;
+  }
+
+  .legal__content :global(p:last-child),
+  .legal__content :global(ul:last-child),
+  .legal__content :global(ol:last-child) {
+    margin-bottom: 0;
+  }
+
+  .legal__content :global(h2:first-child),
+  .legal__content :global(h3:first-child) {
+    margin-top: 0;
   }
 </style>

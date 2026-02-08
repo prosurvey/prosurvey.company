@@ -30,15 +30,26 @@ const requestDescription = applyTypographyNbsp(description);
 const requestSubmitText = submitText;
 const successMessage = applyTypographyNbsp(messages.success);
 
-const consentLabel = applyTypographyNbsp(fields.consent.label);
-const privacyText = consentLinks.privacy.text;
+const consentLabelSource = fields.consent.label;
+const consentLabel = applyTypographyNbsp(consentLabelSource);
+const privacyTextSource = consentLinks.privacy.text;
 const termsPrefixText = applyTypographyNbsp(consentLinks.terms.prefix);
 const termsLinkText = consentLinks.terms.text;
 
-const consentMarker = applyTypographyNbsp(privacyText);
-const consentParts = consentLabel.includes(consentMarker)
-  ? consentLabel.split(consentMarker)
-  : null;
+const consentLabelLower = consentLabelSource.toLocaleLowerCase("ru-RU");
+const privacyTextLower = privacyTextSource.toLocaleLowerCase("ru-RU");
+const privacyIndex = consentLabelLower.indexOf(privacyTextLower);
+
+const consentParts =
+  privacyIndex >= 0
+    ? {
+        before: applyTypographyNbsp(consentLabelSource.slice(0, privacyIndex).trimEnd()),
+        linkText: applyTypographyNbsp(
+          consentLabelSource.slice(privacyIndex, privacyIndex + privacyTextSource.length),
+        ),
+        after: applyTypographyNbsp(consentLabelSource.slice(privacyIndex + privacyTextSource.length).trimStart()),
+      }
+    : null;
 ---
 
 <section class="section request">
@@ -117,14 +128,15 @@ const consentParts = consentLabel.includes(consentMarker)
           <span class="ds-checkbox__label">
             {consentParts ? (
               <>
-                {consentParts[0]}
-                <a class="ds-link" href={consentLinks.privacy.href}>{privacyText}</a>
-                {consentParts[1]}
+                {consentParts.before}
+                {" "}
+                <a class="ds-link" href={consentLinks.privacy.href}>{consentParts.linkText}</a>
+                {consentParts.after ? <> {consentParts.after}</> : null}
               </>
             ) : (
               <>
                 {consentLabel}{" "}
-                <a class="ds-link" href={consentLinks.privacy.href}>{privacyText}</a>
+                <a class="ds-link" href={consentLinks.privacy.href}>{privacyTextSource}</a>
               </>
             )}
           </span>

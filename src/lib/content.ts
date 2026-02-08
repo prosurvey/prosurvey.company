@@ -227,7 +227,9 @@ function formatIssuePath(pathItems: Array<string | number>): string {
 }
 
 export async function loadHomeContent(): Promise<HomeContent> {
-  if (cached) return cached;
+  const isDev = import.meta.env.DEV;
+
+  if (!isDev && cached) return cached;
 
   // NOTE: During `astro build`, this module is executed from the emitted `dist/` bundle,
   // so `import.meta.url` would point at `dist/...` and break relative file resolution.
@@ -245,6 +247,11 @@ export async function loadHomeContent(): Promise<HomeContent> {
     throw new Error(`Invalid content file src/content/home.yml:\n${details}`);
   }
 
-  cached = applyBasePathRecursively(validated.data);
-  return cached;
+  const content = applyBasePathRecursively(validated.data);
+
+  if (!isDev) {
+    cached = content;
+  }
+
+  return content;
 }
