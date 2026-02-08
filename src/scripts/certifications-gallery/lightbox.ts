@@ -1,34 +1,25 @@
 import PhotoSwipeLightbox from "photoswipe/lightbox";
+import type { GalleryAnchorElement, GallerySlide } from "./types";
 
-const enableInputTracking = () => {
-  const body = document.body;
-  if (!body || body.dataset.inputTracking === "true") return;
+const SWIPE_COOLDOWN_MS = 450;
+const SWIPE_MIN_X_DELTA = 30;
+const SWIPE_MIN_VELOCITY = 1;
+const SWIPE_MAX_VELOCITY = 4;
 
-  body.dataset.inputTracking = "true";
+export function createGallerySlides(
+  links: GalleryAnchorElement[],
+): GallerySlide[] {
+  return links.map((link) => ({
+    src: link.dataset.pswpSrc ?? link.getAttribute("href") ?? "",
+    width: Number(link.dataset.pswpWidth) || 0,
+    height: Number(link.dataset.pswpHeight) || 0,
+    element: link,
+  }));
+}
 
-  const markPointer = () => {
-    body.dataset.input = "pointer";
-  };
-
-  const markKeyboard = (event) => {
-    if (event.key === "Tab" || event.key.startsWith("Arrow")) {
-      body.dataset.input = "keyboard";
-    }
-  };
-
-  document.addEventListener("pointerdown", markPointer, { passive: true });
-  document.addEventListener("keydown", markKeyboard);
-};
-
-const initGallery = () => {
-  enableInputTracking();
-  const gallery = document.querySelector("#certs-gallery");
-
-  if (!gallery || gallery.dataset.pswpInitialized === "true") return;
-  gallery.dataset.pswpInitialized = "true";
-
-  const lightbox = new PhotoSwipeLightbox({
-    gallery: "#certs-gallery",
+export function createLightbox(gallerySelector: string): PhotoSwipeLightbox {
+  return new PhotoSwipeLightbox({
+    gallery: gallerySelector,
     children: "a",
     pswpModule: () => import("photoswipe"),
     bgOpacity: 0.96,
@@ -49,17 +40,14 @@ const initGallery = () => {
       right: Math.max(16, viewportSize.x * 0.06),
     }),
   });
+}
 
-  const links = Array.from(gallery.querySelectorAll("a"));
-  const slides = links.map((link) => ({
-    src: link.dataset.pswpSrc || link.getAttribute("href") || "",
-    width: Number(link.dataset.pswpWidth) || 0,
-    height: Number(link.dataset.pswpHeight) || 0,
-    element: link,
-  }));
-
+export function registerCustomUi(lightbox: PhotoSwipeLightbox): void {
   lightbox.on("uiRegister", () => {
-    lightbox.pswp.ui.registerElement({
+    const pswp = lightbox.pswp;
+    if (!pswp?.ui) return;
+
+    pswp.ui.registerElement({
       name: "download-button",
       order: 8,
       isButton: true,
@@ -79,9 +67,9 @@ const initGallery = () => {
         el.setAttribute("aria-label", "Скачать сертификат");
         el.setAttribute("title", "Скачать сертификат");
 
-        const update = () => {
+        const update = (): void => {
           const src = pswp.currSlide?.data?.src;
-          if (src) {
+          if (typeof src === "string" && src.length > 0) {
             el.setAttribute("href", src);
           }
         };
@@ -91,18 +79,22 @@ const initGallery = () => {
       },
     });
 
-    lightbox.pswp.ui.registerElement({
+    pswp.ui.registerElement({
       name: "custom-caption",
       order: 9,
       isButton: false,
       appendTo: "root",
       html: "",
       onInit: (el, pswp) => {
-        const updateCaption = () => {
-          const currSlideElement = pswp.currSlide?.data?.element;
+        const updateCaption = (): void => {
+          const currSlideElement = pswp.currSlide?.data?.element as
+            | GalleryAnchorElement
+            | undefined;
           const caption =
-            currSlideElement?.dataset?.pswpCaption ||
-            currSlideElement?.getAttribute("aria-label")?.replace("Открыть ", "") ||
+            currSlideElement?.dataset?.pswpCaption ??
+            currSlideElement
+              ?.getAttribute("aria-label")
+              ?.replace("Открыть ", "") ??
             "";
           el.textContent = caption;
           el.classList.toggle("is-empty", !caption);
@@ -113,7 +105,9 @@ const initGallery = () => {
       },
     });
   });
+}
 
+export function enableWheelSwipe(lightbox: PhotoSwipeLightbox): void {
   lightbox.on("afterInit", () => {
     const pswp = lightbox.pswp;
     if (!pswp?.element) return;
@@ -121,37 +115,25 @@ const initGallery = () => {
     let lastWheelTime = 0;
     pswp.element.addEventListener(
       "wheel",
-      (event) => {
+      (event: WheelEvent) => {
         if (event.ctrlKey) return;
         const absX = Math.abs(event.deltaX);
         const absY = Math.abs(event.deltaY);
-        if (absX < 30 || absX < absY) return;
+        if (absX < SWIPE_MIN_X_DELTA || absX < absY) return;
+
         const now = Date.now();
-        if (now - lastWheelTime < 450) return;
+        if (now - lastWheelTime < SWIPE_COOLDOWN_MS) return;
         lastWheelTime = now;
+
         event.preventDefault();
-        const velocity = Math.min(4, Math.max(1, absX / 120));
+        const velocity = Math.min(
+          SWIPE_MAX_VELOCITY,
+          Math.max(SWIPE_MIN_VELOCITY, absX / 120),
+        );
         const direction = event.deltaX > 0 ? 1 : -1;
         pswp.mainScroll.moveIndexBy(direction, true, velocity * direction);
       },
-      { passive: false }
+      { passive: false },
     );
   });
-
-  lightbox.init();
-
-  gallery.addEventListener("click", (event) => {
-    const target = event.target instanceof Element ? event.target.closest("a") : null;
-    if (!target || !gallery.contains(target)) return;
-    event.preventDefault();
-    const index = links.indexOf(target);
-    if (index === -1) return;
-    lightbox.loadAndOpen(index, slides);
-  });
-};
-
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", initGallery, { once: true });
-} else {
-  initGallery();
 }

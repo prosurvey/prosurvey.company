@@ -6,11 +6,29 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "typecheck": "tsc -p tsconfig.check.json --noEmit",
+    "lint": "eslint src/lib/content src/scripts tests eslint.config.js",
+    "lint:fix": "eslint src/lib/content src/scripts tests eslint.config.js --fix",
+    "format": "prettier \"src/lib/content/**/*.ts\" \"src/scripts/**/*.ts\" \"tests/**/*.ts\" \"package.json\" \"eslint.config.js\" \".github/workflows/*.yml\" --write",
+    "format:check": "prettier \"src/lib/content/**/*.ts\" \"src/scripts/**/*.ts\" \"tests/**/*.ts\" \"package.json\" \"eslint.config.js\" \".github/workflows/*.yml\" --check",
+    "test": "vitest run",
+    "check": "npm run format:check && npm run lint && npm run typecheck && npm run test"
   },
   "dependencies": {
     "astro": "^5.17.1",
     "photoswipe": "^5.4.4",
     "yaml": "^2.8.1"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.6",
+    "@eslint/js": "^9.39.2",
+    "@types/node": "^25.2.2",
+    "eslint": "^9.39.2",
+    "eslint-plugin-astro": "^1.5.0",
+    "prettier": "^3.8.1",
+    "prettier-plugin-astro": "^0.14.1",
+    "typescript-eslint": "^8.54.0",
+    "vitest": "^4.0.18"
   }
 }
