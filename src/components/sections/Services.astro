@@ -1,5 +1,6 @@
 ---
 import Icon from "../Icon.astro";
+import { applyTypographyNbsp } from "../../lib/typography";
 
 type Props = {
   id: string;
@@ -16,7 +17,7 @@ const { id, title, subtitle, main, other } = Astro.props;
   <div class="ds-container ds-container_type_short-color ds-container_has-backed services__container">
     <div class="ds-container__title-wrapper">
       <h2 class="ds-container__title">{title}</h2>
-      <strong class="ds-container__subtitle">{subtitle}</strong>
+      <strong class="ds-container__subtitle">{applyTypographyNbsp(subtitle)}</strong>
     </div>
 
     <div class="ds-container__content ds-container__content_backed services__backed">

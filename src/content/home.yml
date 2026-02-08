@@ -10,16 +10,15 @@ assets:
   logo: /images/logo.png
   heroImage: /images/hero.jpeg
   formImage: /images/form-bg.jpeg
-  contactsImage: /images/contacts-bg.png
   certifications:
     - image: /images/cert-nopriz.png
       title: НОПРИЗ
-      width: 556
-      height: 800
+      width: 416
+      height: 586
     - image: /images/cert-iso9001.png
       title: Сертификат ISO 9001
-      width: 556
-      height: 800
+      width: 416
+      height: 596
 
 theme:
   accent: "#2C61D6"
@@ -95,7 +94,7 @@ sections:
         label: Имя*
         required: true
       phone:
-        label: "+7"
+        label: Телефон
         required: false
       email:
         label: E-mail*
@@ -107,7 +106,6 @@ sections:
         label: Я внимательно прочитал Политику конфиденциальности и даю свое согласие на обработку персональных данных
         required: true
     messages:
-      invalidForm: Пожалуйста, заполните обязательные поля, отмеченные красным.
       success: Спасибо! Заявка принята. Мы свяжемся с вами в ближайшее время.
     consentLinks:
       privacy:

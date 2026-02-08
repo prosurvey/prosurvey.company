@@ -30,7 +30,6 @@ const homeContentSchema = z
         logo: nonEmptyString,
         heroImage: nonEmptyString,
         formImage: nonEmptyString,
-        contactsImage: nonEmptyString,
         certifications: z
           .array(
             z
@@ -116,7 +115,6 @@ const homeContentSchema = z
               .strict(),
             messages: z
               .object({
-                invalidForm: nonEmptyString,
                 success: nonEmptyString,
               })
               .strict(),

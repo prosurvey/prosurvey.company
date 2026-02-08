@@ -1,4 +1,6 @@
 ---
+import { applyTypographyNbsp } from "../../lib/typography";
+
 type Props = {
   id: string;
   title: string;
@@ -13,7 +15,6 @@ type Props = {
     consent: { label: string; required: boolean };
   };
   messages: {
-    invalidForm: string;
     success: string;
   };
   consentLinks: {
@@ -24,26 +25,37 @@ type Props = {
 
 const { id, title, description, imageHref, submitText, fields, messages, consentLinks } = Astro.props;
 
-const consentMarker = consentLinks.privacy.text;
-const consentParts = fields.consent.label.includes(consentMarker)
-  ? fields.consent.label.split(consentMarker)
+const requestTitle = title;
+const requestDescription = applyTypographyNbsp(description);
+const requestSubmitText = submitText;
+const successMessage = applyTypographyNbsp(messages.success);
+
+const consentLabel = applyTypographyNbsp(fields.consent.label);
+const privacyText = consentLinks.privacy.text;
+const termsPrefixText = applyTypographyNbsp(consentLinks.terms.prefix);
+const termsLinkText = consentLinks.terms.text;
+
+const consentMarker = applyTypographyNbsp(privacyText);
+const consentParts = consentLabel.includes(consentMarker)
+  ? consentLabel.split(consentMarker)
   : null;
 ---
 
-<section id={id} class="section request">
+<section class="section request">
   <div class="ds-container ds-container_type_short-color request__container">
     <div
+      id={id}
       class="b-form__wrapper b-form__wrapper_theme_full"
       style={`background: linear-gradient(180deg, rgb(var(--bg-dark-rgb) / 0.78), rgb(var(--bg-dark-rgb) / 0.78)), center/cover url(${imageHref})`}
     >
       <form
         class="ds-form ds-form_inverse b-form__form"
         data-request-form
-        data-success-message={messages.success}
+        data-success-message={successMessage}
         novalidate
       >
-        <h3 class="ds-form__title">{title}</h3>
-        <p class="ds-form__description">{description}</p>
+        <h3 class="ds-form__title">{requestTitle}</h3>
+        <p class="ds-form__description">{requestDescription}</p>
 
         <div class="ds-input ds-form__item">
           <label class="ds-input__label">
@@ -68,6 +80,7 @@ const consentParts = fields.consent.label.includes(consentMarker)
               name="phone"
               autocomplete="tel"
               placeholder=" "
+              data-phone-input
               required={fields.phone.required}
             />
             <span class="ds-input__text-label">{fields.phone.label}</span>
@@ -105,26 +118,25 @@ const consentParts = fields.consent.label.includes(consentMarker)
             {consentParts ? (
               <>
                 {consentParts[0]}
-                <a class="ds-link" href={consentLinks.privacy.href}>{consentLinks.privacy.text}</a>
+                <a class="ds-link" href={consentLinks.privacy.href}>{privacyText}</a>
                 {consentParts[1]}
               </>
             ) : (
               <>
-                {fields.consent.label}{" "}
-                <a class="ds-link" href={consentLinks.privacy.href}>{consentLinks.privacy.text}</a>
+                {consentLabel}{" "}
+                <a class="ds-link" href={consentLinks.privacy.href}>{privacyText}</a>
               </>
             )}
           </span>
         </label>
 
         <button class="btn btn-primary request__submit" type="submit">
-          {submitText}
+          {requestSubmitText}
         </button>
 
         <div class="form-attachments">
           <p class="form-attachments__text form-attachments__text_inverse">
-            {consentLinks.terms.prefix}{" "}
-            <a class="ds-link" href={consentLinks.terms.href}>{consentLinks.terms.text}</a>
+            {termsPrefixText} <a class="ds-link" href={consentLinks.terms.href}>{termsLinkText}</a>
           </p>
         </div>
 
@@ -139,7 +151,46 @@ const consentParts = fields.consent.label.includes(consentMarker)
 
     if (form && statusEl) {
       const fields = Array.from(form.querySelectorAll('input, textarea'));
+      const phoneInput = form.querySelector('[data-phone-input]');
       const successMessage = form.dataset.successMessage || '';
+
+      const onlyDigits = (value = '') => String(value).replace(/\D+/g, '');
+
+      const normalizePhone = (value = '') => {
+        const raw = String(value).trim();
+        if (!raw) return '';
+
+        let digits = onlyDigits(raw);
+        if (!digits) return '';
+
+        if (digits.length === 10) {
+          digits = `7${digits}`;
+        } else if (digits.length === 11 && digits.startsWith('8')) {
+          digits = `7${digits.slice(1)}`;
+        }
+
+        if (digits.length === 11 && digits.startsWith('7')) {
+          return `+${digits}`;
+        }
+
+        if (raw.startsWith('+') && digits.length >= 11 && digits.length <= 15) {
+          return `+${digits}`;
+        }
+
+        return null;
+      };
+
+      const formatPhoneForDisplay = (value = '') => {
+        const normalized = normalizePhone(value);
+        if (!normalized) return String(value).trim();
+
+        const digits = normalized.slice(1);
+        if (!digits.startsWith('7') || digits.length !== 11) {
+          return normalized;
+        }
+
+        return `+7 (${digits.slice(1, 4)}) ${digits.slice(4, 7)}-${digits.slice(7, 9)}-${digits.slice(9, 11)}`;
+      };
 
       const isValidField = (field) => {
         if (field instanceof HTMLInputElement && field.type === 'checkbox') {
@@ -153,6 +204,11 @@ const consentParts = fields.consent.label.includes(consentMarker)
 
         if (field instanceof HTMLInputElement && field.type === 'email' && value) {
           return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+        }
+
+        if (field instanceof HTMLInputElement && field.type === 'tel') {
+          if (!value) return !field.required;
+          return normalizePhone(value) !== null;
         }
 
         return true;
@@ -192,6 +248,15 @@ const consentParts = fields.consent.label.includes(consentMarker)
         field.addEventListener('blur', () => updateFieldState(field));
       });
 
+      if (phoneInput instanceof HTMLInputElement) {
+        const applyPhoneFormatting = () => {
+          phoneInput.value = formatPhoneForDisplay(phoneInput.value);
+        };
+
+        phoneInput.addEventListener('input', applyPhoneFormatting);
+        phoneInput.addEventListener('blur', applyPhoneFormatting);
+      }
+
       form.addEventListener('submit', (event) => {
         event.preventDefault();
         form.classList.add('is-submitted');
@@ -203,6 +268,15 @@ const consentParts = fields.consent.label.includes(consentMarker)
         }
 
         const formData = Object.fromEntries(new FormData(form).entries());
+        if (phoneInput instanceof HTMLInputElement) {
+          const normalizedPhone = normalizePhone(phoneInput.value);
+          if (normalizedPhone) {
+            formData.phone = normalizedPhone;
+            phoneInput.value = formatPhoneForDisplay(normalizedPhone);
+          } else {
+            delete formData.phone;
+          }
+        }
         console.log('[request-form] stub submit', formData);
         setStatus(successMessage, 'is-success');
         form.reset();
@@ -227,6 +301,7 @@ const consentParts = fields.consent.label.includes(consentMarker)
     padding-inline: clamp(16px, 4vw, 56px);
     background-position: center;
     background-size: cover;
+    scroll-margin-top: calc(var(--header-height) + 18px);
   }
 
   .b-form__form {
@@ -597,4 +672,11 @@ const consentParts = fields.consent.label.includes(consentMarker)
       padding: 22px 14px 7px;
     }
   }
+
+  @media (max-width: 980px) {
+    .b-form__wrapper {
+      scroll-margin-top: calc(var(--header-height) + 12px);
+    }
+  }
+
 </style>

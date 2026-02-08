@@ -32,8 +32,8 @@ const homeHref = import.meta.env.BASE_URL ?? "/";
       <div class="header__group header__group--right">
         <a class="btn btn-primary header__cta" href={cta.href}>{cta.text}</a>
 
-        <details class="nav-mobile">
-          <summary class="nav-mobile__summary" aria-label="Меню">
+        <details class="nav-mobile" data-nav-mobile>
+          <summary class="nav-mobile__summary" aria-label="Меню" aria-expanded="false">
             <span class="nav-mobile__icon" aria-hidden="true"></span>
           </summary>
           <nav class="nav-mobile__panel" aria-label="Меню (мобильное)">
@@ -53,6 +53,83 @@ const homeHref = import.meta.env.BASE_URL ?? "/";
     </div>
   </div>
 </header>
+
+<script>
+  const initMobileMenu = () => {
+    const menus = Array.from(document.querySelectorAll('[data-nav-mobile]'));
+    if (menus.length === 0) return;
+
+    menus.forEach((menu) => {
+      if (!(menu instanceof HTMLDetailsElement)) return;
+      if (menu.dataset.menuReady === 'true') return;
+      menu.dataset.menuReady = 'true';
+
+      const summary = menu.querySelector('.nav-mobile__summary');
+      if (!(summary instanceof HTMLElement)) return;
+
+      const closeMenu = () => {
+        if (!menu.open) return;
+        menu.open = false;
+      };
+
+      const syncExpanded = () => {
+        summary.setAttribute('aria-expanded', menu.open ? 'true' : 'false');
+      };
+
+      syncExpanded();
+      menu.addEventListener('toggle', syncExpanded);
+
+      document.addEventListener(
+        'pointerdown',
+        (event) => {
+          if (!menu.open) return;
+          const target = event.target;
+          if (target instanceof Node && menu.contains(target)) return;
+          closeMenu();
+        },
+        { passive: true }
+      );
+
+      window.addEventListener(
+        'scroll',
+        () => {
+          if (!menu.open) return;
+          closeMenu();
+        },
+        { passive: true }
+      );
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+          closeMenu();
+        }
+      });
+
+      menu.querySelectorAll('a').forEach((link) => {
+        link.addEventListener('click', closeMenu);
+      });
+
+      const mediaQuery = window.matchMedia('(min-width: 981px)');
+      const closeOnDesktop = (event) => {
+        if (event.matches) {
+          closeMenu();
+        }
+      };
+
+      if (typeof mediaQuery.addEventListener === 'function') {
+        mediaQuery.addEventListener('change', closeOnDesktop);
+      } else if (typeof mediaQuery.addListener === 'function') {
+        mediaQuery.addListener(closeOnDesktop);
+      }
+    });
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initMobileMenu, { once: true });
+  } else {
+    initMobileMenu();
+  }
+</script>
 
 <style>
   .header {
@@ -201,6 +278,11 @@ const homeHref = import.meta.env.BASE_URL ?? "/";
     height: 2px;
     background: var(--text-light);
     border-radius: 999px;
+    transition:
+      transform 180ms cubic-bezier(0.2, 0, 0, 1),
+      top 180ms cubic-bezier(0.2, 0, 0, 1),
+      bottom 180ms cubic-bezier(0.2, 0, 0, 1),
+      box-shadow 180ms cubic-bezier(0.2, 0, 0, 1);
   }
 
   .nav-mobile__icon::before {
@@ -212,12 +294,23 @@ const homeHref = import.meta.env.BASE_URL ?? "/";
     bottom: 0;
   }
 
-  .nav-mobile[open] .nav-mobile__panel {
-    display: block;
+  .nav-mobile[open] .nav-mobile__summary {
+    background: rgb(var(--bg-dark-rgb) / 0.68);
+    border-color: rgb(var(--text-light-rgb) / 0.28);
+  }
+
+  .nav-mobile[open] .nav-mobile__icon::before {
+    top: 5px;
+    box-shadow: 0 0 0 transparent;
+    transform: rotate(45deg);
+  }
+
+  .nav-mobile[open] .nav-mobile__icon::after {
+    bottom: 5px;
+    transform: rotate(-45deg);
   }
 
   .nav-mobile__panel {
-    display: none;
     position: absolute;
     right: 0;
     top: calc(100% + 10px);
@@ -228,6 +321,23 @@ const homeHref = import.meta.env.BASE_URL ?? "/";
     backdrop-filter: blur(8px);
     box-shadow: var(--shadow-sm);
     padding: 10px;
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+    transform-origin: top right;
+    pointer-events: none;
+    visibility: hidden;
+    transition:
+      opacity 150ms ease,
+      transform 180ms cubic-bezier(0.2, 0, 0, 1),
+      visibility 0s linear 180ms;
+  }
+
+  .nav-mobile[open] .nav-mobile__panel {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+    visibility: visible;
+    transition-delay: 0s;
   }
 
   .nav-mobile__list {
@@ -286,6 +396,15 @@ const homeHref = import.meta.env.BASE_URL ?? "/";
   @media (min-width: 1200px) {
     .nav__list {
       gap: 20px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nav-mobile__summary,
+    .nav-mobile__icon::before,
+    .nav-mobile__icon::after,
+    .nav-mobile__panel {
+      transition: none !important;
     }
   }
 </style>

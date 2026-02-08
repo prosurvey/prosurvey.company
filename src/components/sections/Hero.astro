@@ -1,4 +1,6 @@
 ---
+import { applyTypographyNbsp } from "../../lib/typography";
+
 type Props = {
   title: string;
   text: string;
@@ -14,8 +16,8 @@ const { title, text, imageHref, buttons } = Astro.props;
   <div class="hero__overlay" aria-hidden="true"></div>
   <div class="hero__content">
     <div class="hero__content-wrapper">
-      <h1 class="hero__title">{title}</h1>
-      <p class="hero__text">{text}</p>
+      <h1 class="hero__title">{applyTypographyNbsp(title)}</h1>
+      <p class="hero__text">{applyTypographyNbsp(text)}</p>
       <div class="hero__actions">
         {buttons.map((button, idx) => {
           const variant = button.variant ?? (idx === 0 ? "secondary" : "primary");

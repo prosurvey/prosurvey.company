@@ -1,4 +1,6 @@
 ---
+import { applyTypographyNbsp } from "../../lib/typography";
+
 type Props = {
   id: string;
   eyebrow: string;
@@ -18,7 +20,7 @@ const { id, eyebrow, title, text, stats, note } = Astro.props;
     </div>
     <div class="ds-container__content">
       <p class="b-text__text b-text__text_align_center">
-        <strong class="b-text__insert-title">{eyebrow}</strong> — {text}
+        <strong class="b-text__insert-title">{eyebrow}</strong> — {applyTypographyNbsp(text)}
       </p>
     </div>
   </div>
@@ -39,7 +41,7 @@ const { id, eyebrow, title, text, stats, note } = Astro.props;
   <div class="ds-container ds-container_type_short-color about__block about__block--note">
     <div class="ds-container__content">
       <p class="b-text__text b-text__text_align_center">
-        <strong class="b-text__insert-title">{note}</strong>
+        <strong class="b-text__insert-title">{applyTypographyNbsp(note)}</strong>
       </p>
     </div>
   </div>
