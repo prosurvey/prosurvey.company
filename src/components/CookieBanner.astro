@@ -22,11 +22,35 @@ const { text, acceptText, link } = Astro.props;
 
 <script is:inline>
   {String.raw`
-    const key = 'prosurvey_cookie_consent_v2';
+    const consentCookieName = 'prosurvey_cookie_consent';
+    const consentAcceptedValue = 'accepted';
+    const consentMaxAge = 60 * 60 * 24 * 365;
+    const legacyStorageKey = 'prosurvey_cookie_consent_v2';
     const banner = document.querySelector('[data-cookie-banner]');
     const btn = document.querySelector('[data-cookie-accept]');
 
     const prefersReduced = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+    const secureSuffix = window.location.protocol === 'https:' ? '; Secure' : '';
+
+    const readCookie = (name) => {
+      const prefix = `${name}=`;
+      const raw = document.cookie
+        .split(';')
+        .map((part) => part.trim())
+        .find((part) => part.startsWith(prefix));
+      return raw ? decodeURIComponent(raw.slice(prefix.length)) : null;
+    };
+
+    const hasCookieConsent = () => readCookie(consentCookieName) === consentAcceptedValue;
+
+    const persistCookieConsent = () => {
+      document.cookie = `${consentCookieName}=${encodeURIComponent(consentAcceptedValue)}; Max-Age=${consentMaxAge}; Path=/; SameSite=Lax${secureSuffix}`;
+      try {
+        localStorage.setItem(legacyStorageKey, consentAcceptedValue);
+      } catch {
+        // ignore
+      }
+    };
 
     const show = () => {
       if (!banner) return;
@@ -53,19 +77,26 @@ const { text, acceptText, link } = Astro.props;
     };
 
     if (banner && btn) {
-      let stored = null;
-      try {
-        stored = localStorage.getItem(key);
-      } catch {
-        // ignore
-      }
-      if (stored !== 'accepted') show();
-      btn.addEventListener('click', () => {
+      let hasConsent = hasCookieConsent();
+
+      // Migrate older localStorage-only consent to an actual cookie once.
+      if (!hasConsent) {
+        let legacyStored = null;
         try {
-          localStorage.setItem(key, 'accepted');
+          legacyStored = localStorage.getItem(legacyStorageKey);
         } catch {
           // ignore
         }
+        if (legacyStored === consentAcceptedValue) {
+          persistCookieConsent();
+          hasConsent = hasCookieConsent();
+        }
+      }
+
+      if (!hasConsent) show();
+
+      btn.addEventListener('click', () => {
+        persistCookieConsent();
         hide();
       });
     }
@@ -75,9 +106,9 @@ const { text, acceptText, link } = Astro.props;
 <style>
   .cookie {
     position: fixed;
-    left: 16px;
-    right: 16px;
-    bottom: 16px;
+    left: clamp(12px, 2vw, 24px);
+    right: clamp(12px, 2vw, 24px);
+    bottom: clamp(12px, 2vw, 24px);
     z-index: 900;
     opacity: 0;
     transform: translateY(10px);
@@ -90,26 +121,29 @@ const { text, acceptText, link } = Astro.props;
   }
 
   .cookie__inner {
-    max-width: var(--container);
+    max-width: min(var(--container), 980px);
     margin-inline: auto;
-    border-radius: var(--radius-l);
-    border: 1px solid var(--border-on-dark);
-    background: rgb(var(--bg-dark-rgb) / 0.96);
-    backdrop-filter: blur(8px);
-    box-shadow: var(--shadow-sm);
-    padding: 14px 16px;
+    border-radius: var(--radius-2xl);
+    border: 1px solid rgb(var(--text-light-rgb) / 0.18);
+    background:
+      linear-gradient(160deg, rgb(var(--accent-rgb) / 0.1), transparent 40%),
+      linear-gradient(180deg, rgb(var(--bg-dark-rgb) / 0.9), rgb(var(--bg-dark-rgb) / 0.96));
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 18px 40px rgb(0 0 0 / 0.32);
+    padding: clamp(14px, 2vw, 20px);
     display: flex;
-    gap: 12px;
+    gap: 14px;
     align-items: center;
     justify-content: space-between;
   }
 
   .cookie__text {
     display: grid;
-    gap: 6px;
-    color: var(--muted-on-dark);
+    gap: 8px;
+    color: rgb(var(--text-light-rgb) / 0.82);
     font-size: 14px;
-    line-height: 1.45;
+    line-height: 1.5;
   }
 
   .cookie__p {
@@ -120,13 +154,15 @@ const { text, acceptText, link } = Astro.props;
   .cookie__link {
     text-decoration: underline;
     text-underline-offset: 3px;
-    color: rgb(var(--text-light-rgb) / 0.92);
+    text-decoration-thickness: 1px;
+    color: rgb(var(--text-light-rgb) / 0.96);
     width: fit-content;
   }
 
   .cookie__btn {
     flex: 0 0 auto;
-    padding-inline: 18px;
+    min-height: 42px;
+    padding-inline: 20px;
   }
 
   @media (max-width: 720px) {
@@ -137,6 +173,12 @@ const { text, acceptText, link } = Astro.props;
 
     .cookie__btn {
       width: 100%;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cookie {
+      transition: none;
     }
   }
 </style>

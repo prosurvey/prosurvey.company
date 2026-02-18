@@ -22,7 +22,12 @@ const { title, text, imageHref, buttons } = Astro.props;
         {buttons.map((button, idx) => {
           const variant = button.variant ?? (idx === 0 ? "secondary" : "primary");
           const btnClass = variant === "primary" ? "btn-primary" : "btn-secondary";
-          return (
+          const isConsultationButton = /консультац/iu.test(button.text);
+          return isConsultationButton ? (
+            <button class={`btn hero__btn ${btnClass}`} type="button" data-callback-open>
+              {button.text}
+            </button>
+          ) : (
             <a class={`btn hero__btn ${btnClass}`} href={button.href}>
               {button.text}
             </a>
@@ -31,6 +36,90 @@ const { title, text, imageHref, buttons } = Astro.props;
       </div>
     </div>
   </div>
+
+  <div class="hero-callback" data-callback-modal hidden>
+    <button class="hero-callback__backdrop" type="button" aria-label="Закрыть окно" data-callback-close></button>
+    <div class="hero-callback__panel" role="dialog" aria-modal="true" aria-labelledby="hero-callback-title">
+      <p class="hero-callback__eyebrow">Консультация</p>
+      <h2 class="hero-callback__title" id="hero-callback-title">Заказать обратный звонок?</h2>
+      <p class="hero-callback__text">Оставьте заявку, и мы свяжемся с вами в ближайшее время.</p>
+      <div class="hero-callback__actions">
+        <button class="btn btn-primary hero-callback__btn" type="button" data-callback-confirm>Подтвердить</button>
+        <button class="btn btn-secondary hero-callback__btn" type="button" data-callback-close>Отмена</button>
+      </div>
+    </div>
+  </div>
+
+  <script is:inline>
+    {String.raw`
+      (() => {
+        const modal = document.querySelector('[data-callback-modal]');
+        const openButtons = Array.from(document.querySelectorAll('[data-callback-open]'));
+        if (!modal || openButtons.length === 0) return;
+
+        const closeButtons = Array.from(modal.querySelectorAll('[data-callback-close]'));
+        const confirmButton = modal.querySelector('[data-callback-confirm]');
+        const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+
+        let hideTimer = null;
+
+        const clearHideTimer = () => {
+          if (hideTimer) {
+            window.clearTimeout(hideTimer);
+            hideTimer = null;
+          }
+        };
+
+        const openModal = () => {
+          clearHideTimer();
+          modal.hidden = false;
+          document.body.classList.add('modal-open');
+          if (reducedMotion) {
+            modal.classList.add('is-visible');
+            return;
+          }
+          requestAnimationFrame(() => {
+            modal.classList.add('is-visible');
+          });
+        };
+
+        const closeModal = () => {
+          clearHideTimer();
+          if (reducedMotion) {
+            modal.classList.remove('is-visible');
+            modal.hidden = true;
+            document.body.classList.remove('modal-open');
+            return;
+          }
+          modal.classList.remove('is-visible');
+          hideTimer = window.setTimeout(() => {
+            modal.hidden = true;
+            document.body.classList.remove('modal-open');
+          }, 220);
+        };
+
+        openButtons.forEach((button) => {
+          button.addEventListener('click', (event) => {
+            event.preventDefault();
+            openModal();
+          });
+        });
+
+        closeButtons.forEach((button) => {
+          button.addEventListener('click', closeModal);
+        });
+
+        document.addEventListener('keydown', (event) => {
+          if (event.key === 'Escape' && !modal.hidden) closeModal();
+        });
+
+        confirmButton?.addEventListener('click', () => {
+          console.log('[callback-modal] stub submit: callback requested');
+          closeModal();
+        });
+      })();
+    `}
+  </script>
 </section>
 
 <style>
@@ -113,9 +202,94 @@ const { title, text, imageHref, buttons } = Astro.props;
     text-decoration: none;
   }
 
+  :global(body.modal-open) {
+    overflow: hidden;
+  }
+
+  .hero-callback {
+    position: fixed;
+    inset: 0;
+    z-index: 1100;
+    display: grid;
+    place-items: center;
+    padding: 20px;
+    opacity: 0;
+    transition: opacity 220ms ease;
+  }
+
+  .hero-callback.is-visible {
+    opacity: 1;
+  }
+
+  .hero-callback__backdrop {
+    position: absolute;
+    inset: 0;
+    border: 0;
+    background: rgb(9 13 23 / 0.64);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    cursor: pointer;
+  }
+
+  .hero-callback__panel {
+    position: relative;
+    z-index: 1;
+    width: min(480px, 100%);
+    border-radius: var(--radius-2xl);
+    border: 1px solid rgb(var(--text-light-rgb) / 0.2);
+    background:
+      linear-gradient(180deg, rgb(var(--bg-dark-rgb) / 0.86), rgb(var(--bg-dark-rgb) / 0.94)),
+      linear-gradient(120deg, rgb(var(--accent-rgb) / 0.14), transparent 58%);
+    box-shadow: 0 24px 60px rgb(0 0 0 / 0.36);
+    padding: clamp(18px, 2.5vw, 28px);
+  }
+
+  .hero-callback__eyebrow {
+    margin: 0 0 8px;
+    font-size: 12px;
+    line-height: 1;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgb(var(--text-light-rgb) / 0.62);
+  }
+
+  .hero-callback__title {
+    margin: 0 0 10px;
+    font-family: var(--font-display);
+    font-size: clamp(26px, 3vw, 34px);
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    font-weight: 600;
+  }
+
+  .hero-callback__text {
+    margin: 0;
+    color: rgb(var(--text-light-rgb) / 0.8);
+    font-size: 15px;
+    line-height: 1.55;
+  }
+
+  .hero-callback__actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-top: 18px;
+  }
+
+  .hero-callback__btn {
+    width: 100%;
+    min-height: 44px;
+  }
+
   @media (min-width: 620px) and (max-width: 1023px) {
     .hero__actions {
       margin-top: 24px;
+    }
+  }
+
+  @media (min-width: 640px) {
+    .hero-callback__actions {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 
@@ -125,6 +299,12 @@ const { title, text, imageHref, buttons } = Astro.props;
       justify-content: center;
       gap: 12px;
       margin-top: 30px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-callback {
+      transition: none;
     }
   }
 </style>
