@@ -21,7 +21,7 @@ const { text, acceptText, link } = Astro.props;
 </div>
 
 <script is:inline>
-  {String.raw`
+  (() => {
     const consentCookieName = 'prosurvey_cookie_consent';
     const consentAcceptedValue = 'accepted';
     const consentMaxAge = 60 * 60 * 24 * 365;
@@ -100,7 +100,7 @@ const { text, acceptText, link } = Astro.props;
         hide();
       });
     }
-  `}
+  })();
 </script>
 
 <style>

@@ -51,74 +51,72 @@ const { title, text, imageHref, buttons } = Astro.props;
   </div>
 
   <script is:inline>
-    {String.raw`
-      (() => {
-        const modal = document.querySelector('[data-callback-modal]');
-        const openButtons = Array.from(document.querySelectorAll('[data-callback-open]'));
-        if (!modal || openButtons.length === 0) return;
+    (() => {
+      const modal = document.querySelector('[data-callback-modal]');
+      const openButtons = Array.from(document.querySelectorAll('[data-callback-open]'));
+      if (!modal || openButtons.length === 0) return;
 
-        const closeButtons = Array.from(modal.querySelectorAll('[data-callback-close]'));
-        const confirmButton = modal.querySelector('[data-callback-confirm]');
-        const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+      const closeButtons = Array.from(modal.querySelectorAll('[data-callback-close]'));
+      const confirmButton = modal.querySelector('[data-callback-confirm]');
+      const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
 
-        let hideTimer = null;
+      let hideTimer = null;
 
-        const clearHideTimer = () => {
-          if (hideTimer) {
-            window.clearTimeout(hideTimer);
-            hideTimer = null;
-          }
-        };
+      const clearHideTimer = () => {
+        if (hideTimer) {
+          window.clearTimeout(hideTimer);
+          hideTimer = null;
+        }
+      };
 
-        const openModal = () => {
-          clearHideTimer();
-          modal.hidden = false;
-          document.body.classList.add('modal-open');
-          if (reducedMotion) {
-            modal.classList.add('is-visible');
-            return;
-          }
-          requestAnimationFrame(() => {
-            modal.classList.add('is-visible');
-          });
-        };
+      const openModal = () => {
+        clearHideTimer();
+        modal.hidden = false;
+        document.body.classList.add('modal-open');
+        if (reducedMotion) {
+          modal.classList.add('is-visible');
+          return;
+        }
+        requestAnimationFrame(() => {
+          modal.classList.add('is-visible');
+        });
+      };
 
-        const closeModal = () => {
-          clearHideTimer();
-          if (reducedMotion) {
-            modal.classList.remove('is-visible');
-            modal.hidden = true;
-            document.body.classList.remove('modal-open');
-            return;
-          }
+      const closeModal = () => {
+        clearHideTimer();
+        if (reducedMotion) {
           modal.classList.remove('is-visible');
-          hideTimer = window.setTimeout(() => {
-            modal.hidden = true;
-            document.body.classList.remove('modal-open');
-          }, 220);
-        };
+          modal.hidden = true;
+          document.body.classList.remove('modal-open');
+          return;
+        }
+        modal.classList.remove('is-visible');
+        hideTimer = window.setTimeout(() => {
+          modal.hidden = true;
+          document.body.classList.remove('modal-open');
+        }, 220);
+      };
 
-        openButtons.forEach((button) => {
-          button.addEventListener('click', (event) => {
-            event.preventDefault();
-            openModal();
-          });
+      openButtons.forEach((button) => {
+        button.addEventListener('click', (event) => {
+          event.preventDefault();
+          openModal();
         });
+      });
 
-        closeButtons.forEach((button) => {
-          button.addEventListener('click', closeModal);
-        });
+      closeButtons.forEach((button) => {
+        button.addEventListener('click', closeModal);
+      });
 
-        document.addEventListener('keydown', (event) => {
-          if (event.key === 'Escape' && !modal.hidden) closeModal();
-        });
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && !modal.hidden) closeModal();
+      });
 
-        confirmButton?.addEventListener('click', () => {
-          console.log('[callback-modal] stub submit: callback requested');
-          closeModal();
-        });
-      })();
-    `}
+      confirmButton?.addEventListener('click', () => {
+        console.log('[callback-modal] stub submit: callback requested');
+        closeModal();
+      });
+    })();
   </script>
 </section>
 
