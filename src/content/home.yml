@@ -21,7 +21,7 @@ assets:
       height: 596
 
 theme:
-  accent: "#197C81"
+  accent: "#72425C"
   bgDark: "#181818"
   bgLight: "#F4F6FA"
 
