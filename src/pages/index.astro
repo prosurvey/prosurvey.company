@@ -9,91 +9,86 @@ import Contacts from "../components/sections/Contacts.astro";
 import Hero from "../components/sections/Hero.astro";
 import Request from "../components/sections/Request.astro";
 import Services from "../components/sections/Services.astro";
-import { loadHomeContent } from "../lib/content";
+import { loadHomePageModel } from "../lib/content";
 
-const content = await loadHomeContent();
+const pageModel = await loadHomePageModel();
 ---
 
 <BaseLayout
-  lang={content.site.lang}
-  title={content.site.title}
-  description={content.site.description}
-  keywords={content.site.keywords}
-  faviconHref={content.assets.favicon}
-  theme={content.theme}
+  lang={pageModel.layout.lang}
+  title={pageModel.layout.title}
+  description={pageModel.layout.description}
+  keywords={pageModel.layout.keywords}
+  faviconHref={pageModel.layout.faviconHref}
+  theme={pageModel.layout.theme}
 >
   <Header
-    logoHref={content.assets.logo}
-    logoAlt={content.site.brandName}
-    navItems={content.nav.header.items}
-    cta={content.nav.header.cta}
+    logoHref={pageModel.header.logoHref}
+    logoAlt={pageModel.header.logoAlt}
+    navItems={pageModel.header.navItems}
+    cta={pageModel.header.cta}
   />
 
   <main id="top">
     <Hero
-      title={content.sections.hero.title}
-      text={content.sections.hero.text}
-      imageHref={content.assets.heroImage}
-      buttons={content.sections.hero.buttons}
+      title={pageModel.hero.title}
+      text={pageModel.hero.text}
+      imageHref={pageModel.hero.imageHref}
+      buttons={pageModel.hero.buttons}
     />
 
     <About
-      id={content.sections.about.id}
-      eyebrow={content.sections.about.eyebrow}
-      title={content.sections.about.title}
-      text={content.sections.about.text}
-      stats={content.sections.about.stats}
-      note={content.sections.about.note}
+      id={pageModel.about.id}
+      eyebrow={pageModel.about.eyebrow}
+      title={pageModel.about.title}
+      text={pageModel.about.text}
+      stats={pageModel.about.stats}
+      note={pageModel.about.note}
     />
 
     <Services
-      id={content.sections.services.id}
-      title={content.sections.services.title}
-      subtitle={content.sections.services.subtitle}
-      main={content.sections.services.main}
-      other={content.sections.services.other}
+      id={pageModel.services.id}
+      title={pageModel.services.title}
+      subtitle={pageModel.services.subtitle}
+      main={pageModel.services.main}
+      other={pageModel.services.other}
     />
 
     <Request
-      id={content.sections.request.id}
-      title={content.sections.request.title}
-      description={content.sections.request.description}
-      imageHref={content.assets.formImage}
-      submitText={content.sections.request.submitText}
-      fields={content.sections.request.fields}
-      messages={content.sections.request.messages}
-      consentLinks={content.sections.request.consentLinks}
+      id={pageModel.request.id}
+      title={pageModel.request.title}
+      description={pageModel.request.description}
+      imageHref={pageModel.request.imageHref}
+      submitText={pageModel.request.submitText}
+      fields={pageModel.request.fields}
+      messages={pageModel.request.messages}
+      consentLinks={pageModel.request.consentLinks}
     />
 
     <Certifications
-      id={content.sections.certifications.id}
-      title={content.sections.certifications.title}
-      items={content.assets.certifications.map((c) => ({
-        imageHref: c.image,
-        title: c.title,
-        width: c.width,
-        height: c.height,
-      }))}
+      id={pageModel.certifications.id}
+      title={pageModel.certifications.title}
+      items={pageModel.certifications.items}
     />
 
     <Contacts
-      id={content.sections.contacts.id}
-      title={content.sections.contacts.title}
-      email={content.sections.contacts.email}
-      phoneText={content.sections.contacts.phoneText}
-      phoneHref={content.sections.contacts.phoneHref}
-      hours={content.sections.contacts.hours}
-      socials={content.sections.contacts.socials}
+      id={pageModel.contacts.id}
+      title={pageModel.contacts.title}
+      email={pageModel.contacts.email}
+      phoneText={pageModel.contacts.phoneText}
+      phoneHref={pageModel.contacts.phoneHref}
+      hours={pageModel.contacts.hours}
+      socials={pageModel.contacts.socials}
     />
   </main>
 
   <Footer
-    navItems={content.nav.header.items}
-    links={content.footer.links}
-    copyright={content.footer.copyright}
+    navItems={pageModel.footer.navItems}
+    links={pageModel.footer.links}
+    copyright={pageModel.footer.copyright}
   />
 
-  {content.cookie.enabled ? (
-    <CookieBanner text={content.cookie.text} acceptText={content.cookie.acceptText} link={content.cookie.link} />
+  {pageModel.cookie.enabled ? (
+    <CookieBanner text={pageModel.cookie.text} acceptText={pageModel.cookie.acceptText} link={pageModel.cookie.link} />
   ) : null}
 </BaseLayout>
