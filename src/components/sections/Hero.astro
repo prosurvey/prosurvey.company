@@ -24,9 +24,17 @@ const { title, text, imageHref, buttons } = Astro.props;
           const btnClass = variant === "primary" ? "btn-primary" : "btn-secondary";
           const isConsultationButton = /консультац/iu.test(button.text);
           return isConsultationButton ? (
-            <button class={`btn hero__btn ${btnClass}`} type="button" data-callback-open>
+            <a
+              class={`btn hero__btn ${btnClass}`}
+              href={button.href}
+              data-callback-open
+              data-callback-target={button.href}
+              aria-haspopup="dialog"
+              aria-controls="hero-callback-dialog"
+              aria-expanded="false"
+            >
               {button.text}
-            </button>
+            </a>
           ) : (
             <a class={`btn hero__btn ${btnClass}`} href={button.href}>
               {button.text}
@@ -39,12 +47,19 @@ const { title, text, imageHref, buttons } = Astro.props;
 
   <div class="hero-callback" data-callback-modal hidden>
     <button class="hero-callback__backdrop" type="button" aria-label="Закрыть окно" data-callback-close></button>
-    <div class="hero-callback__panel" role="dialog" aria-modal="true" aria-labelledby="hero-callback-title">
+    <div
+      class="hero-callback__panel"
+      id="hero-callback-dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="hero-callback-title"
+      tabindex="-1"
+    >
       <p class="hero-callback__eyebrow">Консультация</p>
-      <h2 class="hero-callback__title" id="hero-callback-title">Заказать обратный звонок?</h2>
-      <p class="hero-callback__text">Оставьте заявку, и мы свяжемся с вами в ближайшее время.</p>
+      <h2 class="hero-callback__title" id="hero-callback-title">Перейти к форме заявки?</h2>
+      <p class="hero-callback__text">Откроем форму ниже и переведём вас сразу к заполнению запроса.</p>
       <div class="hero-callback__actions">
-        <button class="btn btn-primary hero-callback__btn" type="button" data-callback-confirm>Подтвердить</button>
+        <button class="btn btn-primary hero-callback__btn" type="button" data-callback-confirm>Перейти к заявке</button>
         <button class="btn btn-secondary hero-callback__btn" type="button" data-callback-close>Отмена</button>
       </div>
     </div>
@@ -54,13 +69,19 @@ const { title, text, imageHref, buttons } = Astro.props;
     (() => {
       const modal = document.querySelector('[data-callback-modal]');
       const openButtons = Array.from(document.querySelectorAll('[data-callback-open]'));
-      if (!modal || openButtons.length === 0) return;
+      const panel = modal?.querySelector('.hero-callback__panel');
+      if (!modal || !panel || modal.dataset.callbackReady === 'true' || openButtons.length === 0) return;
+      modal.dataset.callbackReady = 'true';
 
       const closeButtons = Array.from(modal.querySelectorAll('[data-callback-close]'));
       const confirmButton = modal.querySelector('[data-callback-confirm]');
       const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+      const focusableSelector =
+        'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
       let hideTimer = null;
+      let lastTrigger = null;
+      let targetHref = openButtons[0]?.getAttribute('data-callback-target') || '#request';
 
       const clearHideTimer = () => {
         if (hideTimer) {
@@ -69,43 +90,129 @@ const { title, text, imageHref, buttons } = Astro.props;
         }
       };
 
-      const openModal = () => {
-        clearHideTimer();
-        modal.hidden = false;
-        document.body.classList.add('modal-open');
-        if (reducedMotion) {
-          modal.classList.add('is-visible');
-          return;
-        }
-        requestAnimationFrame(() => {
-          modal.classList.add('is-visible');
+      const syncState = (isOpen) => {
+        modal.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+        openButtons.forEach((button) => {
+          button.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
         });
       };
 
-      const closeModal = () => {
-        clearHideTimer();
-        if (reducedMotion) {
-          modal.classList.remove('is-visible');
-          modal.hidden = true;
-          document.body.classList.remove('modal-open');
+      const getFocusableElements = () =>
+        Array.from(panel.querySelectorAll(focusableSelector)).filter((element) => {
+          if (!(element instanceof HTMLElement)) return false;
+          return !element.hasAttribute('hidden') && element.tabIndex !== -1;
+        });
+
+      const resolveTargetElement = (href = '') => {
+        const hashIndex = href.indexOf('#');
+        if (hashIndex === -1) return null;
+        const targetId = href.slice(hashIndex + 1);
+        return targetId ? document.getElementById(targetId) : null;
+      };
+
+      const moveToTarget = (href = '') => {
+        const targetElement = resolveTargetElement(href);
+        if (!targetElement) {
+          if (href) window.location.href = href;
           return;
         }
-        modal.classList.remove('is-visible');
-        hideTimer = window.setTimeout(() => {
+
+        const targetId = targetElement.getAttribute('id');
+        if (targetId) {
+          history.replaceState(null, '', `#${targetId}`);
+        }
+
+        targetElement.scrollIntoView({
+          behavior: reducedMotion ? 'auto' : 'smooth',
+          block: 'start',
+        });
+
+        window.setTimeout(() => {
+          const firstField = targetElement.querySelector('input, textarea, button, a[href]');
+          if (firstField instanceof HTMLElement) {
+            firstField.focus({ preventScroll: true });
+          }
+        }, reducedMotion ? 0 : 320);
+      };
+
+      const openModal = (trigger) => {
+        clearHideTimer();
+        lastTrigger = trigger instanceof HTMLElement ? trigger : null;
+        targetHref = lastTrigger?.getAttribute('data-callback-target') || targetHref;
+        modal.hidden = false;
+        syncState(true);
+        document.body.classList.add('modal-open');
+
+        const focusTarget = confirmButton instanceof HTMLElement ? confirmButton : panel;
+        const finalizeOpen = () => {
+          modal.classList.add('is-visible');
+          focusTarget.focus({ preventScroll: true });
+        };
+
+        if (reducedMotion) {
+          finalizeOpen();
+          return;
+        }
+
+        requestAnimationFrame(finalizeOpen);
+      };
+
+      const closeModal = ({ restoreFocus = true } = {}) => {
+        clearHideTimer();
+
+        const finalizeClose = () => {
           modal.hidden = true;
           document.body.classList.remove('modal-open');
+          if (restoreFocus && lastTrigger instanceof HTMLElement) {
+            lastTrigger.focus({ preventScroll: true });
+          }
+        };
+
+        syncState(false);
+
+        if (reducedMotion) {
+          modal.classList.remove('is-visible');
+          finalizeClose();
+          return;
+        }
+
+        modal.classList.remove('is-visible');
+        hideTimer = window.setTimeout(() => {
+          finalizeClose();
         }, 220);
       };
 
       openButtons.forEach((button) => {
         button.addEventListener('click', (event) => {
           event.preventDefault();
-          openModal();
+          openModal(button);
         });
       });
 
       closeButtons.forEach((button) => {
-        button.addEventListener('click', closeModal);
+        button.addEventListener('click', () => closeModal());
+      });
+
+      modal.addEventListener('keydown', (event) => {
+        if (event.key !== 'Tab' || modal.hidden) return;
+
+        const focusableElements = getFocusableElements();
+        if (focusableElements.length === 0) {
+          event.preventDefault();
+          return;
+        }
+
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+        const activeElement = document.activeElement;
+
+        if (event.shiftKey && activeElement === firstElement) {
+          event.preventDefault();
+          lastElement.focus();
+        } else if (!event.shiftKey && activeElement === lastElement) {
+          event.preventDefault();
+          firstElement.focus();
+        }
       });
 
       document.addEventListener('keydown', (event) => {
@@ -113,9 +220,11 @@ const { title, text, imageHref, buttons } = Astro.props;
       });
 
       confirmButton?.addEventListener('click', () => {
-        console.log('[callback-modal] stub submit: callback requested');
-        closeModal();
+        closeModal({ restoreFocus: false });
+        moveToTarget(targetHref);
       });
+
+      syncState(false);
     })();
   </script>
 </section>
@@ -212,11 +321,27 @@ const { title, text, imageHref, buttons } = Astro.props;
     place-items: center;
     padding: 20px;
     opacity: 0;
+    visibility: hidden;
     transition: opacity 220ms ease;
+  }
+
+  .hero-callback[hidden] {
+    display: none;
+  }
+
+  .hero-callback__backdrop,
+  .hero-callback__panel {
+    pointer-events: none;
   }
 
   .hero-callback.is-visible {
     opacity: 1;
+    visibility: visible;
+  }
+
+  .hero-callback.is-visible .hero-callback__backdrop,
+  .hero-callback.is-visible .hero-callback__panel {
+    pointer-events: auto;
   }
 
   .hero-callback__backdrop {

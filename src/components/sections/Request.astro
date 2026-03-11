@@ -7,6 +7,7 @@ type Props = {
   description: string;
   imageHref: string;
   submitText: string;
+  recipientEmail: string;
   fields: {
     name: { label: string; required: boolean };
     phone: { label: string; required: boolean };
@@ -23,7 +24,7 @@ type Props = {
   };
 };
 
-const { id, title, description, imageHref, submitText, fields, messages, consentLinks } = Astro.props;
+const { id, title, description, imageHref, submitText, recipientEmail, fields, messages, consentLinks } = Astro.props;
 
 const requestTitle = title;
 const requestDescription = applyTypographyNbsp(description);
@@ -63,6 +64,7 @@ const consentParts =
         class="ds-form ds-form_inverse b-form__form"
         data-request-form
         data-success-message={successMessage}
+        data-recipient-email={recipientEmail}
         novalidate
       >
         <h3 class="ds-form__title">{requestTitle}</h3>
@@ -153,149 +155,234 @@ const consentParts =
         </div>
 
         <p class="request__status" data-request-status role="status" aria-live="polite"></p>
+        <a class="btn btn-secondary request__mailto" data-request-mailto hidden>
+          Открыть письмо
+        </a>
       </form>
     </div>
   </div>
 
   <script>
-    const form = document.querySelector('[data-request-form]');
-    const statusEl = document.querySelector('[data-request-status]');
+    (() => {
+      const forms = Array.from(document.querySelectorAll('[data-request-form]'));
 
-    if (form && statusEl) {
-      const fields = Array.from(form.querySelectorAll('input, textarea'));
-      const phoneInput = form.querySelector('[data-phone-input]');
-      const successMessage = form.dataset.successMessage || '';
+      forms.forEach((form) => {
+        if (!(form instanceof HTMLFormElement) || form.dataset.formReady === 'true') return;
+        form.dataset.formReady = 'true';
 
-      const onlyDigits = (value = '') => String(value).replace(/\D+/g, '');
+        const statusEl = form.querySelector('[data-request-status]');
+        const phoneInput = form.querySelector('[data-phone-input]');
+        const mailtoLink = form.querySelector('[data-request-mailto]');
+        const recipientEmail = form.dataset.recipientEmail || '';
+        const successMessage = form.dataset.successMessage || '';
+        const invalidMessage = 'Проверьте обязательные поля и корректность e-mail или телефона.';
 
-      const normalizePhone = (value = '') => {
-        const raw = String(value).trim();
-        if (!raw) return '';
+        if (!(statusEl instanceof HTMLElement)) return;
 
-        let digits = onlyDigits(raw);
-        if (!digits) return '';
+        const fields = Array.from(form.querySelectorAll('input, textarea'));
 
-        if (digits.length === 10) {
-          digits = `7${digits}`;
-        } else if (digits.length === 11 && digits.startsWith('8')) {
-          digits = `7${digits.slice(1)}`;
-        }
+        const onlyDigits = (value = '') => String(value).replace(/\D+/g, '');
 
-        if (digits.length === 11 && digits.startsWith('7')) {
-          return `+${digits}`;
-        }
+        const normalizePhone = (value = '') => {
+          const raw = String(value).trim();
+          if (!raw) return '';
 
-        if (raw.startsWith('+') && digits.length >= 11 && digits.length <= 15) {
-          return `+${digits}`;
-        }
+          let digits = onlyDigits(raw);
+          if (!digits) return '';
 
-        return null;
-      };
+          if (digits.length === 10) {
+            digits = `7${digits}`;
+          } else if (digits.length === 11 && digits.startsWith('8')) {
+            digits = `7${digits.slice(1)}`;
+          }
 
-      const formatPhoneForDisplay = (value = '') => {
-        const normalized = normalizePhone(value);
-        if (!normalized) return String(value).trim();
+          if (digits.length === 11 && digits.startsWith('7')) {
+            return `+${digits}`;
+          }
 
-        const digits = normalized.slice(1);
-        if (!digits.startsWith('7') || digits.length !== 11) {
-          return normalized;
-        }
+          if (raw.startsWith('+') && digits.length >= 11 && digits.length <= 15) {
+            return `+${digits}`;
+          }
 
-        return `+7 (${digits.slice(1, 4)}) ${digits.slice(4, 7)}-${digits.slice(7, 9)}-${digits.slice(9, 11)}`;
-      };
-
-      const isValidField = (field) => {
-        if (field instanceof HTMLInputElement && field.type === 'checkbox') {
-          return !field.required || field.checked;
-        }
-
-        const value = (field.value || '').trim();
-        if (field.required && !value) {
-          return false;
-        }
-
-        if (field instanceof HTMLInputElement && field.type === 'email' && value) {
-          return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-        }
-
-        if (field instanceof HTMLInputElement && field.type === 'tel') {
-          if (!value) return !field.required;
-          return normalizePhone(value) !== null;
-        }
-
-        return true;
-      };
-
-      const setStatus = (message = '', tone = '') => {
-        statusEl.textContent = message;
-        statusEl.classList.remove('is-success', 'is-error');
-        if (tone) {
-          statusEl.classList.add(tone);
-        }
-      };
-
-      const updateFieldState = (field, showInvalid = false) => {
-        const item = field.closest('.ds-form__item');
-        if (!item) return;
-        if (isValidField(field)) {
-          item.classList.remove('is-invalid');
-        } else if (showInvalid || form.classList.contains('is-submitted')) {
-          item.classList.add('is-invalid');
-        }
-      };
-
-      const hasInvalidFields = () => fields.some((field) => !isValidField(field));
-
-      form.addEventListener(
-        'invalid',
-        (event) => {
-          event.preventDefault();
-        },
-        true
-      );
-
-      fields.forEach((field) => {
-        field.addEventListener('input', () => updateFieldState(field));
-        field.addEventListener('change', () => updateFieldState(field));
-        field.addEventListener('blur', () => updateFieldState(field));
-      });
-
-      if (phoneInput instanceof HTMLInputElement) {
-        const applyPhoneFormatting = () => {
-          phoneInput.value = formatPhoneForDisplay(phoneInput.value);
+          return null;
         };
 
-        phoneInput.addEventListener('input', applyPhoneFormatting);
-        phoneInput.addEventListener('blur', applyPhoneFormatting);
-      }
+        const formatPhoneForDisplay = (value = '') => {
+          const normalized = normalizePhone(value);
+          if (!normalized) return String(value).trim();
 
-      form.addEventListener('submit', (event) => {
-        event.preventDefault();
-        form.classList.add('is-submitted');
-        fields.forEach((field) => updateFieldState(field, true));
-
-        if (hasInvalidFields()) {
-          setStatus();
-          return;
-        }
-
-        const formData = Object.fromEntries(new FormData(form).entries());
-        if (phoneInput instanceof HTMLInputElement) {
-          const normalizedPhone = normalizePhone(phoneInput.value);
-          if (normalizedPhone) {
-            formData.phone = normalizedPhone;
-            phoneInput.value = formatPhoneForDisplay(normalizedPhone);
-          } else {
-            delete formData.phone;
+          const digits = normalized.slice(1);
+          if (!digits.startsWith('7') || digits.length !== 11) {
+            return normalized;
           }
+
+          return `+7 (${digits.slice(1, 4)}) ${digits.slice(4, 7)}-${digits.slice(7, 9)}-${digits.slice(9, 11)}`;
+        };
+
+        const isValidField = (field) => {
+          if (field instanceof HTMLInputElement && field.type === 'checkbox') {
+            return !field.required || field.checked;
+          }
+
+          const value = (field.value || '').trim();
+          if (field.required && !value) {
+            return false;
+          }
+
+          if (field instanceof HTMLInputElement && field.type === 'email' && value) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+          }
+
+          if (field instanceof HTMLInputElement && field.type === 'tel') {
+            if (!value) return !field.required;
+            return normalizePhone(value) !== null;
+          }
+
+          return true;
+        };
+
+        const setStatus = (message = '', tone = '') => {
+          statusEl.textContent = message;
+          statusEl.classList.remove('is-success', 'is-error');
+          if (tone) {
+            statusEl.classList.add(tone);
+          }
+        };
+
+        const resetMailtoLink = () => {
+          if (!(mailtoLink instanceof HTMLAnchorElement)) return;
+          mailtoLink.hidden = true;
+          mailtoLink.removeAttribute('href');
+        };
+
+        const updateFieldState = (field, showInvalid = false) => {
+          const item = field.closest('.ds-form__item');
+          if (!item) return;
+          if (isValidField(field)) {
+            item.classList.remove('is-invalid');
+          } else if (showInvalid || form.classList.contains('is-submitted')) {
+            item.classList.add('is-invalid');
+          }
+        };
+
+        const getFirstInvalidField = () => fields.find((field) => !isValidField(field));
+        const hasInvalidFields = () => Boolean(getFirstInvalidField());
+
+        const buildMailtoHref = (payload) => {
+          const lines = [
+            'Новая заявка с сайта prosurvey.company',
+            '',
+            `Имя: ${payload.name}`,
+            payload.phone ? `Телефон: ${payload.phone}` : null,
+            `E-mail: ${payload.email}`,
+            payload.message ? `Сообщение: ${payload.message}` : null,
+            '',
+            `Страница: ${window.location.href}`,
+            `Дата: ${new Date().toLocaleString('ru-RU')}`,
+          ].filter(Boolean);
+
+          const subject = 'Заявка с сайта prosurvey.company';
+          return `mailto:${recipientEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines.join('\n'))}`;
+        };
+
+        form.addEventListener(
+          'invalid',
+          (event) => {
+            event.preventDefault();
+          },
+          true
+        );
+
+        fields.forEach((field) => {
+          const handleFieldUpdate = () => {
+            updateFieldState(field);
+            if (statusEl.classList.contains('is-success')) {
+              setStatus();
+              resetMailtoLink();
+            }
+          };
+
+          field.addEventListener('input', handleFieldUpdate);
+          field.addEventListener('change', handleFieldUpdate);
+          field.addEventListener('blur', () => updateFieldState(field));
+        });
+
+        if (phoneInput instanceof HTMLInputElement) {
+          const applyPhoneFormatting = () => {
+            phoneInput.value = formatPhoneForDisplay(phoneInput.value);
+          };
+
+          phoneInput.addEventListener('input', applyPhoneFormatting);
+          phoneInput.addEventListener('blur', applyPhoneFormatting);
         }
-        console.log('[request-form] stub submit', formData);
-        setStatus(successMessage, 'is-success');
-        form.reset();
-        form.classList.remove('is-submitted');
-        fields.forEach((field) => updateFieldState(field));
+
+        resetMailtoLink();
+
+        form.addEventListener('submit', (event) => {
+          event.preventDefault();
+          form.classList.add('is-submitted');
+          fields.forEach((field) => updateFieldState(field, true));
+
+          if (hasInvalidFields()) {
+            setStatus(invalidMessage, 'is-error');
+            const firstInvalidField = getFirstInvalidField();
+            if (firstInvalidField instanceof HTMLElement) {
+              firstInvalidField.focus();
+            }
+            return;
+          }
+
+          if (!recipientEmail) {
+            setStatus('Не удалось подготовить письмо: на странице не настроен адрес получателя.', 'is-error');
+            return;
+          }
+
+          const formData = Object.fromEntries(new FormData(form).entries());
+          const normalizedPhone =
+            phoneInput instanceof HTMLInputElement ? normalizePhone(phoneInput.value) : formData.phone || '';
+
+          const payload = {
+            name: String(formData.name || '').trim(),
+            phone: typeof normalizedPhone === 'string' ? normalizedPhone : '',
+            email: String(formData.email || '').trim(),
+            message: String(formData.message || '').trim(),
+          };
+
+          const mailtoHref = buildMailtoHref(payload);
+
+          if (mailtoLink instanceof HTMLAnchorElement) {
+            mailtoLink.href = mailtoHref;
+            mailtoLink.hidden = false;
+          }
+
+          try {
+            sessionStorage.setItem(
+              'prosurvey_last_request',
+              JSON.stringify({
+                ...payload,
+                createdAt: new Date().toISOString(),
+              })
+            );
+          } catch {
+            // ignore
+          }
+
+          setStatus(successMessage, 'is-success');
+
+          if (mailtoLink instanceof HTMLAnchorElement) {
+            mailtoLink.click();
+          }
+
+          form.reset();
+          form.classList.remove('is-submitted');
+          fields.forEach((field) => updateFieldState(field));
+
+          if (phoneInput instanceof HTMLInputElement) {
+            phoneInput.value = '';
+          }
+        });
       });
-    }
+    })();
   </script>
 </section>
 
@@ -654,6 +741,11 @@ const consentParts =
     color: var(--status-error-text);
     background: rgb(var(--status-error-rgb) / 0.18);
     border-color: rgb(var(--status-error-rgb) / 0.44);
+  }
+
+  .request__mailto {
+    width: 100%;
+    margin-top: 10px;
   }
 
   @media (min-width: 1024px) {
