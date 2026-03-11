@@ -2,3 +2,8 @@ name = "prosurvey"
 compatibility_date = "2026-03-11"
 
 assets = { directory = "./dist" }
+
+[[d1_databases]]
+binding = "DB"
+database_name = "prosurvey-db"
+database_id = "f9f887fd-2510-43f2-b0ad-31e34298bdc1"
