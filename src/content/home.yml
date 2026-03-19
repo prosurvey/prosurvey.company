@@ -10,16 +10,15 @@ assets:
   logo: /images/logo.png
   heroImage: /images/hero.jpeg
   formImage: /images/form-bg.jpeg
-
-certifications:
-  - image: /images/cert-nopriz.png
-    title: НОПРИЗ
-    width: 416
-    height: 586
-  - image: /images/cert-iso9001.png
-    title: Сертификат ISO 9001
-    width: 416
-    height: 596
+  certifications:
+    - image: /images/cert-nopriz.png
+      title: НОПРИЗ
+      width: 416
+      height: 586
+    - image: /images/cert-iso9001.png
+      title: Сертификат ISO 9001
+      width: 416
+      height: 596
 
 theme:
   accent: "#72425C"
