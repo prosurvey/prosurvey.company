@@ -41,7 +41,11 @@ const successMessage = applyTypographyNbsp(messages.success);
 const termsPrefixText = applyTypographyNbsp(consentLinks.terms.prefix);
 ---
 
-<section id={id} class="request">
+<section
+  id={id}
+  class="request"
+  style={`--request-bg-image: url("${imageHref}")`}
+>
   <div class="container">
     <div class="request__grid">
       <div class="request__content">
@@ -51,7 +55,12 @@ const termsPrefixText = applyTypographyNbsp(consentLinks.terms.prefix);
       </div>
 
       <div class="request__card">
-        <form class="request-form" data-request-form novalidate>
+        <form
+          class="request-form"
+          data-request-form
+          data-success-message={successMessage}
+          novalidate
+        >
           <input type="hidden" name="source" value="site-form" />
 
           <div class="request-form__field">
@@ -145,7 +154,7 @@ const termsPrefixText = applyTypographyNbsp(consentLinks.terms.prefix);
       padding: 96px 0;
       background:
         linear-gradient(180deg, rgba(24, 24, 24, 0.96), rgba(24, 24, 24, 0.96)),
-        url({imageHref}) center / cover no-repeat;
+        var(--request-bg-image) center / cover no-repeat;
     }
 
     .container {
@@ -310,7 +319,10 @@ const termsPrefixText = applyTypographyNbsp(consentLinks.terms.prefix);
       if (!(status instanceof HTMLElement)) return;
       if (!(submitButton instanceof HTMLButtonElement)) return;
 
-      const successMessage = {JSON.stringify(successMessage)};
+      const successMessage =
+        form.getAttribute("data-success-message") ||
+        "Заявка отправлена. Мы свяжемся с Вами в ближайшее время.";
+
       const errorMessage =
         "Не удалось отправить заявку. Попробуйте еще раз или свяжитесь с нами по телефону.";
 
