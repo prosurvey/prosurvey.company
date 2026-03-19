@@ -24,763 +24,340 @@ type Props = {
   };
 };
 
-const { id, title, description, imageHref, submitText, recipientEmail, fields, messages, consentLinks } = Astro.props;
+const {
+  id,
+  title,
+  description,
+  imageHref,
+  submitText,
+  fields,
+  messages,
+  consentLinks,
+} = Astro.props;
 
-const requestTitle = title;
+const requestTitle = applyTypographyNbsp(title);
 const requestDescription = applyTypographyNbsp(description);
-const requestSubmitText = submitText;
 const successMessage = applyTypographyNbsp(messages.success);
-
-const consentLabelSource = fields.consent.label;
-const consentLabel = applyTypographyNbsp(consentLabelSource);
-const privacyTextSource = consentLinks.privacy.text;
 const termsPrefixText = applyTypographyNbsp(consentLinks.terms.prefix);
-const termsLinkText = consentLinks.terms.text;
-
-const consentLabelLower = consentLabelSource.toLocaleLowerCase("ru-RU");
-const privacyTextLower = privacyTextSource.toLocaleLowerCase("ru-RU");
-const privacyIndex = consentLabelLower.indexOf(privacyTextLower);
-
-const consentParts =
-  privacyIndex >= 0
-    ? {
-        before: applyTypographyNbsp(consentLabelSource.slice(0, privacyIndex).trimEnd()),
-        linkText: applyTypographyNbsp(
-          consentLabelSource.slice(privacyIndex, privacyIndex + privacyTextSource.length),
-        ),
-        after: applyTypographyNbsp(consentLabelSource.slice(privacyIndex + privacyTextSource.length).trimStart()),
-      }
-    : null;
 ---
 
-<section class="section request">
-  <div class="ds-container ds-container_type_short-color request__container">
-    <div
-      id={id}
-      class="b-form__wrapper b-form__wrapper_theme_full"
-      style={`background: linear-gradient(180deg, rgb(var(--bg-dark-rgb) / 0.78), rgb(var(--bg-dark-rgb) / 0.78)), center/cover url(${imageHref})`}
-    >
-      <form
-        class="ds-form ds-form_inverse b-form__form"
-        data-request-form
-        data-success-message={successMessage}
-        data-recipient-email={recipientEmail}
-        novalidate
-      >
-        <h3 class="ds-form__title">{requestTitle}</h3>
-        <p class="ds-form__description">{requestDescription}</p>
+<section id={id} class="request">
+  <div class="container">
+    <div class="request__grid">
+      <div class="request__content">
+        <p class="request__eyebrow">Заявка</p>
+        <h2 class="request__title">{requestTitle}</h2>
+        <p class="request__description">{requestDescription}</p>
+      </div>
 
-        <div class="ds-input ds-form__item">
-          <label class="ds-input__label">
+      <div class="request__card">
+        <form class="request-form" data-request-form novalidate>
+          <input type="hidden" name="source" value="site-form" />
+
+          <div class="request-form__field">
+            <label for={`${id}-name`}>{fields.name.label}</label>
             <input
-              class="ds-input__input ds-input__input_with-label ds-input__input_color_secondary"
-              type="text"
+              id={`${id}-name`}
               name="name"
+              type="text"
               autocomplete="name"
-              placeholder=" "
               required={fields.name.required}
             />
-            <span class="ds-input__text-label">{fields.name.label}</span>
-          </label>
-        </div>
+          </div>
 
-        <div class="ds-input ds-form__item">
-          <label class="ds-input__label">
+          <div class="request-form__field">
+            <label for={`${id}-phone`}>{fields.phone.label}</label>
             <input
-              class="ds-input__input ds-input__input_with-label ds-input__input_color_secondary"
-              type="tel"
-              inputmode="tel"
+              id={`${id}-phone`}
               name="phone"
+              type="tel"
               autocomplete="tel"
-              placeholder=" "
-              data-phone-input
               required={fields.phone.required}
             />
-            <span class="ds-input__text-label">{fields.phone.label}</span>
-          </label>
-        </div>
+          </div>
 
-        <div class="ds-input ds-form__item">
-          <label class="ds-input__label">
+          <div class="request-form__field">
+            <label for={`${id}-email`}>{fields.email.label}</label>
             <input
-              class="ds-input__input ds-input__input_with-label ds-input__input_color_secondary"
-              type="email"
-              inputmode="email"
+              id={`${id}-email`}
               name="email"
+              type="email"
               autocomplete="email"
-              placeholder=" "
               required={fields.email.required}
             />
-            <span class="ds-input__text-label">{fields.email.label}</span>
+          </div>
+
+          <div class="request-form__field">
+            <label for={`${id}-company`}>Компания</label>
+            <input
+              id={`${id}-company`}
+              name="company"
+              type="text"
+              autocomplete="organization"
+            />
+          </div>
+
+          <div class="request-form__field">
+            <label for={`${id}-message`}>{fields.message.label}</label>
+            <textarea
+              id={`${id}-message`}
+              name="message"
+              rows="5"
+              required={fields.message.required}
+            ></textarea>
+          </div>
+
+          <label class="request-form__consent">
+            <input
+              name="consent"
+              type="checkbox"
+              value="yes"
+              required={fields.consent.required}
+            />
+            <span>
+              Я внимательно прочитал
+              <a href={consentLinks.privacy.href} target="_blank" rel="noopener noreferrer">
+                {consentLinks.privacy.text}
+              </a>
+              {" "}и даю свое согласие на обработку персональных данных
+            </span>
           </label>
-        </div>
 
-        <div class="ds-textarea ds-form__item">
-          <label class="ds-textarea__label ds-textarea__label_color_secondary">
-            <textarea class="ds-textarea__textarea" name="message" rows="2" placeholder=" " required={fields.message.required}></textarea>
-            <span class="ds-textarea__text-label">{fields.message.label}</span>
-          </label>
-        </div>
+          <button type="submit" class="request-form__submit" data-submit-button>
+            {submitText}
+          </button>
 
-        <label class="ds-checkbox ds-checkbox_color_secondary ds-form__item">
-          <span class="ds-checkbox__outer">
-            <input class="ds-checkbox__input" type="checkbox" name="consent" required={fields.consent.required} />
-            <span class="ds-checkbox__inner"></span>
-          </span>
-          <span class="ds-checkbox__label">
-            {consentParts ? (
-              <>
-                {consentParts.before}
-                {" "}
-                <a class="ds-link" href={consentLinks.privacy.href}>{consentParts.linkText}</a>
-                {consentParts.after ? <> {consentParts.after}</> : null}
-              </>
-            ) : (
-              <>
-                {consentLabel}{" "}
-                <a class="ds-link" href={consentLinks.privacy.href}>{privacyTextSource}</a>
-              </>
-            )}
-          </span>
-        </label>
-
-        <button class="btn btn-primary request__submit" type="submit">
-          {requestSubmitText}
-        </button>
-
-        <div class="form-attachments">
-          <p class="form-attachments__text form-attachments__text_inverse">
-            {termsPrefixText} <a class="ds-link" href={consentLinks.terms.href}>{termsLinkText}</a>
+          <p class="request-form__terms">
+            {termsPrefixText}{" "}
+            <a href={consentLinks.terms.href} target="_blank" rel="noopener noreferrer">
+              {consentLinks.terms.text}
+            </a>
           </p>
-        </div>
 
-        <p class="request__status" data-request-status role="status" aria-live="polite"></p>
-        <a class="btn btn-secondary request__mailto" data-request-mailto hidden>
-          Открыть письмо
-        </a>
-      </form>
+          <div class="request-form__status" data-status hidden></div>
+        </form>
+      </div>
     </div>
   </div>
 
+  <style>
+    .request {
+      padding: 96px 0;
+      background:
+        linear-gradient(180deg, rgba(24, 24, 24, 0.96), rgba(24, 24, 24, 0.96)),
+        url({imageHref}) center / cover no-repeat;
+    }
+
+    .container {
+      width: min(1200px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    .request__grid {
+      display: grid;
+      grid-template-columns: 1fr 1.1fr;
+      gap: 32px;
+      align-items: start;
+    }
+
+    .request__eyebrow {
+      margin: 0 0 12px;
+      color: rgba(255, 255, 255, 0.72);
+      font-size: 14px;
+      line-height: 1.2;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .request__title {
+      margin: 0 0 16px;
+      color: #fff;
+      font-size: clamp(32px, 4vw, 56px);
+      line-height: 1;
+    }
+
+    .request__description {
+      margin: 0;
+      color: rgba(255, 255, 255, 0.84);
+      font-size: 18px;
+      line-height: 1.5;
+      max-width: 560px;
+    }
+
+    .request__card {
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 28px;
+      background: rgba(20, 20, 20, 0.8);
+      backdrop-filter: blur(16px);
+      padding: 24px;
+    }
+
+    .request-form {
+      display: grid;
+      gap: 16px;
+    }
+
+    .request-form__field {
+      display: grid;
+      gap: 8px;
+    }
+
+    .request-form__field label,
+    .request-form__terms,
+    .request-form__consent {
+      color: rgba(255, 255, 255, 0.84);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .request-form__field input,
+    .request-form__field textarea {
+      width: 100%;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.04);
+      color: #fff;
+      padding: 16px 18px;
+      font: inherit;
+      outline: none;
+      resize: vertical;
+      box-sizing: border-box;
+    }
+
+    .request-form__field input:focus,
+    .request-form__field textarea:focus {
+      border-color: rgba(114, 66, 92, 0.9);
+      box-shadow: 0 0 0 3px rgba(114, 66, 92, 0.18);
+    }
+
+    .request-form__consent {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .request-form__consent input {
+      margin-top: 3px;
+      flex: 0 0 auto;
+    }
+
+    .request-form__consent a,
+    .request-form__terms a {
+      color: #fff;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .request-form__submit {
+      width: 100%;
+      border: 0;
+      border-radius: 22px;
+      padding: 20px 24px;
+      background: #72425c;
+      color: #fff;
+      font: inherit;
+      font-size: 20px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s ease;
+    }
+
+    .request-form__submit:disabled {
+      cursor: wait;
+      opacity: 0.72;
+    }
+
+    .request-form__status {
+      border-radius: 18px;
+      padding: 18px 20px;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .request-form__status.is-success {
+      border: 1px solid rgba(37, 179, 105, 0.45);
+      background: rgba(20, 72, 44, 0.32);
+      color: #e8fff1;
+    }
+
+    .request-form__status.is-error {
+      border: 1px solid rgba(255, 107, 107, 0.4);
+      background: rgba(90, 20, 20, 0.28);
+      color: #ffe9e9;
+    }
+
+    @media (max-width: 900px) {
+      .request {
+        padding: 72px 0;
+      }
+
+      .request__grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+
   <script>
     (() => {
-      const forms = Array.from(document.querySelectorAll('[data-request-form]'));
+      const root = document.currentScript?.closest("section");
+      if (!root) return;
 
-      forms.forEach((form) => {
-        if (!(form instanceof HTMLFormElement) || form.dataset.formReady === 'true') return;
-        form.dataset.formReady = 'true';
+      const form = root.querySelector("[data-request-form]");
+      const status = root.querySelector("[data-status]");
+      const submitButton = root.querySelector("[data-submit-button]");
 
-        const statusEl = form.querySelector('[data-request-status]');
-        const phoneInput = form.querySelector('[data-phone-input]');
-        const mailtoLink = form.querySelector('[data-request-mailto]');
-        const recipientEmail = form.dataset.recipientEmail || '';
-        const successMessage = form.dataset.successMessage || '';
-        const invalidMessage = 'Проверьте обязательные поля и корректность e-mail или телефона.';
+      if (!(form instanceof HTMLFormElement)) return;
+      if (!(status instanceof HTMLElement)) return;
+      if (!(submitButton instanceof HTMLButtonElement)) return;
 
-        if (!(statusEl instanceof HTMLElement)) return;
+      const successMessage = {JSON.stringify(successMessage)};
+      const errorMessage =
+        "Не удалось отправить заявку. Попробуйте еще раз или свяжитесь с нами по телефону.";
 
-        const fields = Array.from(form.querySelectorAll('input, textarea'));
+      const setStatus = (type, message) => {
+        status.hidden = false;
+        status.textContent = message;
+        status.classList.remove("is-success", "is-error");
+        status.classList.add(type === "success" ? "is-success" : "is-error");
+      };
 
-        const onlyDigits = (value = '') => String(value).replace(/\D+/g, '');
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
 
-        const normalizePhone = (value = '') => {
-          const raw = String(value).trim();
-          if (!raw) return '';
+        if (!form.reportValidity()) return;
 
-          let digits = onlyDigits(raw);
-          if (!digits) return '';
+        submitButton.disabled = true;
+        const initialText = submitButton.textContent ?? "";
+        submitButton.textContent = "Отправляем...";
 
-          if (digits.length === 10) {
-            digits = `7${digits}`;
-          } else if (digits.length === 11 && digits.startsWith('8')) {
-            digits = `7${digits.slice(1)}`;
-          }
+        try {
+          const formData = new FormData(form);
+          const payload = Object.fromEntries(formData.entries());
 
-          if (digits.length === 11 && digits.startsWith('7')) {
-            return `+${digits}`;
-          }
+          const response = await fetch("/api/lead", {
+            method: "POST",
+            headers: {
+              "content-type": "application/json",
+            },
+            body: JSON.stringify(payload),
+          });
 
-          if (raw.startsWith('+') && digits.length >= 11 && digits.length <= 15) {
-            return `+${digits}`;
-          }
+          const data = await response.json().catch(() => null);
 
-          return null;
-        };
-
-        const formatPhoneForDisplay = (value = '') => {
-          const normalized = normalizePhone(value);
-          if (!normalized) return String(value).trim();
-
-          const digits = normalized.slice(1);
-          if (!digits.startsWith('7') || digits.length !== 11) {
-            return normalized;
-          }
-
-          return `+7 (${digits.slice(1, 4)}) ${digits.slice(4, 7)}-${digits.slice(7, 9)}-${digits.slice(9, 11)}`;
-        };
-
-        const isValidField = (field) => {
-          if (field instanceof HTMLInputElement && field.type === 'checkbox') {
-            return !field.required || field.checked;
-          }
-
-          const value = (field.value || '').trim();
-          if (field.required && !value) {
-            return false;
-          }
-
-          if (field instanceof HTMLInputElement && field.type === 'email' && value) {
-            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-          }
-
-          if (field instanceof HTMLInputElement && field.type === 'tel') {
-            if (!value) return !field.required;
-            return normalizePhone(value) !== null;
-          }
-
-          return true;
-        };
-
-        const setStatus = (message = '', tone = '') => {
-          statusEl.textContent = message;
-          statusEl.classList.remove('is-success', 'is-error');
-          if (tone) {
-            statusEl.classList.add(tone);
-          }
-        };
-
-        const resetMailtoLink = () => {
-          if (!(mailtoLink instanceof HTMLAnchorElement)) return;
-          mailtoLink.hidden = true;
-          mailtoLink.removeAttribute('href');
-        };
-
-        const updateFieldState = (field, showInvalid = false) => {
-          const item = field.closest('.ds-form__item');
-          if (!item) return;
-          if (isValidField(field)) {
-            item.classList.remove('is-invalid');
-          } else if (showInvalid || form.classList.contains('is-submitted')) {
-            item.classList.add('is-invalid');
-          }
-        };
-
-        const getFirstInvalidField = () => fields.find((field) => !isValidField(field));
-        const hasInvalidFields = () => Boolean(getFirstInvalidField());
-
-        const buildMailtoHref = (payload) => {
-          const lines = [
-            'Новая заявка с сайта prosurvey.company',
-            '',
-            `Имя: ${payload.name}`,
-            payload.phone ? `Телефон: ${payload.phone}` : null,
-            `E-mail: ${payload.email}`,
-            payload.message ? `Сообщение: ${payload.message}` : null,
-            '',
-            `Страница: ${window.location.href}`,
-            `Дата: ${new Date().toLocaleString('ru-RU')}`,
-          ].filter(Boolean);
-
-          const subject = 'Заявка с сайта prosurvey.company';
-          return `mailto:${recipientEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines.join('\n'))}`;
-        };
-
-        form.addEventListener(
-          'invalid',
-          (event) => {
-            event.preventDefault();
-          },
-          true
-        );
-
-        fields.forEach((field) => {
-          const handleFieldUpdate = () => {
-            updateFieldState(field);
-            if (statusEl.classList.contains('is-success')) {
-              setStatus();
-              resetMailtoLink();
-            }
-          };
-
-          field.addEventListener('input', handleFieldUpdate);
-          field.addEventListener('change', handleFieldUpdate);
-          field.addEventListener('blur', () => updateFieldState(field));
-        });
-
-        if (phoneInput instanceof HTMLInputElement) {
-          const applyPhoneFormatting = () => {
-            phoneInput.value = formatPhoneForDisplay(phoneInput.value);
-          };
-
-          phoneInput.addEventListener('input', applyPhoneFormatting);
-          phoneInput.addEventListener('blur', applyPhoneFormatting);
-        }
-
-        resetMailtoLink();
-
-        form.addEventListener('submit', (event) => {
-          event.preventDefault();
-          form.classList.add('is-submitted');
-          fields.forEach((field) => updateFieldState(field, true));
-
-          if (hasInvalidFields()) {
-            setStatus(invalidMessage, 'is-error');
-            const firstInvalidField = getFirstInvalidField();
-            if (firstInvalidField instanceof HTMLElement) {
-              firstInvalidField.focus();
-            }
-            return;
-          }
-
-          if (!recipientEmail) {
-            setStatus('Не удалось подготовить письмо: на странице не настроен адрес получателя.', 'is-error');
-            return;
-          }
-
-          const formData = Object.fromEntries(new FormData(form).entries());
-          const normalizedPhone =
-            phoneInput instanceof HTMLInputElement ? normalizePhone(phoneInput.value) : formData.phone || '';
-
-          const payload = {
-            name: String(formData.name || '').trim(),
-            phone: typeof normalizedPhone === 'string' ? normalizedPhone : '',
-            email: String(formData.email || '').trim(),
-            message: String(formData.message || '').trim(),
-          };
-
-          const mailtoHref = buildMailtoHref(payload);
-
-          if (mailtoLink instanceof HTMLAnchorElement) {
-            mailtoLink.href = mailtoHref;
-            mailtoLink.hidden = false;
-          }
-
-          try {
-            sessionStorage.setItem(
-              'prosurvey_last_request',
-              JSON.stringify({
-                ...payload,
-                createdAt: new Date().toISOString(),
-              })
-            );
-          } catch {
-            // ignore
-          }
-
-          setStatus(successMessage, 'is-success');
-
-          if (mailtoLink instanceof HTMLAnchorElement) {
-            mailtoLink.click();
+          if (!response.ok || !data?.ok) {
+            throw new Error(data?.error || "submit_failed");
           }
 
           form.reset();
-          form.classList.remove('is-submitted');
-          fields.forEach((field) => updateFieldState(field));
-
-          if (phoneInput instanceof HTMLInputElement) {
-            phoneInput.value = '';
-          }
-        });
+          setStatus("success", successMessage);
+        } catch (error) {
+          console.error(error);
+          setStatus("error", errorMessage);
+        } finally {
+          submitButton.disabled = false;
+          submitButton.textContent = initialText;
+        }
       });
     })();
   </script>
 </section>
-
-<style>
-  .request {
-    position: relative;
-    background: var(--bg-dark);
-    color: var(--text-light);
-  }
-
-  .b-form__wrapper {
-    border-radius: var(--radius-l);
-    overflow: hidden;
-    padding-block: clamp(32px, 6vw, 88px);
-    padding-inline: clamp(16px, 4vw, 56px);
-    background-position: center;
-    background-size: cover;
-    scroll-margin-top: calc(var(--header-height) + 18px);
-  }
-
-  .b-form__form {
-    margin: auto;
-    width: 100%;
-    max-width: min(560px, 100%);
-  }
-
-  .ds-form {
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    padding: clamp(18px, 3vw, 30px);
-    border-radius: var(--radius-xl);
-    border: 1px solid rgb(var(--text-light-rgb) / 0.16);
-    background: rgb(var(--bg-dark-rgb) / 0.64);
-    backdrop-filter: blur(8px);
-    box-shadow: var(--shadow-md);
-  }
-
-  .ds-form__title {
-    margin: 0 0 12px;
-    color: var(--text-light);
-    font-family: var(--font-display);
-    font-size: clamp(22px, 2.4vw, 34px);
-    font-weight: 600;
-    letter-spacing: -0.03em;
-    line-height: 1.12;
-    text-align: center;
-  }
-
-  .ds-form__description {
-    margin: 0 0 16px;
-    color: rgb(var(--text-light-rgb) / 0.8);
-    font-size: clamp(15px, 1.1vw + 12px, 18px);
-    font-weight: 400;
-    line-height: 1.6;
-    text-align: left;
-    white-space: normal;
-  }
-
-  .ds-form__item {
-    margin-bottom: 16px;
-  }
-
-  .ds-input {
-    position: relative;
-  }
-
-  .ds-input__label {
-    display: block;
-    position: relative;
-  }
-
-  .ds-input__text-label {
-    position: absolute;
-    left: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: rgb(var(--text-light-rgb) / 0.74);
-    font-size: 16px;
-    font-weight: 400;
-    line-height: 22px;
-    transition: color 0.2s ease, top 0.2s ease, transform 0.2s ease, font-size 0.2s ease, line-height 0.2s ease;
-  }
-
-  .ds-input__input {
-    width: 100%;
-    border: 1px solid rgb(var(--text-light-rgb) / 0.16);
-    border-radius: var(--radius-s);
-    background-color: rgb(var(--text-light-rgb) / 0.06);
-    color: var(--text-light);
-    caret-color: var(--accent);
-    font-size: 16px;
-    line-height: 22px;
-    padding: 15px 14px;
-    transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-  }
-
-  .ds-input__input:hover {
-    background-color: rgb(var(--text-light-rgb) / 0.08);
-    border-color: rgb(var(--text-light-rgb) / 0.24);
-  }
-
-  .ds-input__input_with-label {
-    padding: 22px 14px 8px;
-  }
-
-  .ds-input__input:focus {
-    outline: none;
-    background-color: rgb(var(--text-light-rgb) / 0.1);
-    box-shadow: var(--focus-ring);
-  }
-
-  .ds-input__input:focus + .ds-input__text-label,
-  .ds-input__input:not(:placeholder-shown) + .ds-input__text-label {
-    top: 6px;
-    transform: translateY(0);
-    font-size: 13px;
-    line-height: 16px;
-  }
-
-  .ds-input__input:focus + .ds-input__text-label {
-    color: rgb(var(--text-light-rgb) / 0.94);
-  }
-
-  .ds-form__item.is-invalid .ds-input__input {
-    background-color: rgb(var(--status-error-rgb) / 0.16);
-    border-color: rgb(var(--status-error-rgb) / 0.58);
-    box-shadow: 0 0 0 3px rgb(var(--status-error-rgb) / 0.24);
-  }
-
-  .ds-form__item.is-invalid .ds-input__text-label {
-    color: var(--status-error-text);
-  }
-
-  .ds-textarea {
-    position: relative;
-  }
-
-  .ds-textarea__label {
-    display: flex;
-    position: relative;
-    border: 1px solid rgb(var(--text-light-rgb) / 0.16);
-    border-radius: var(--radius-s);
-    background-color: rgb(var(--text-light-rgb) / 0.06);
-    padding: 24px 0 6px;
-    transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-  }
-
-  .ds-textarea__label:hover {
-    background-color: rgb(var(--text-light-rgb) / 0.08);
-    border-color: rgb(var(--text-light-rgb) / 0.24);
-  }
-
-  .ds-textarea__label:focus-within {
-    background-color: rgb(var(--text-light-rgb) / 0.1);
-    box-shadow: var(--focus-ring);
-  }
-
-  .ds-textarea__text-label {
-    position: absolute;
-    left: 12px;
-    top: 14px;
-    color: rgb(var(--text-light-rgb) / 0.74);
-    font-size: 16px;
-    font-weight: 400;
-    line-height: 22px;
-    transition: color 0.2s ease, top 0.2s ease, font-size 0.2s ease, line-height 0.2s ease;
-  }
-
-  .ds-textarea__textarea {
-    width: 100%;
-    min-height: 92px;
-    border: none;
-    background-color: transparent;
-    color: var(--text-light);
-    caret-color: var(--accent);
-    font-size: 16px;
-    line-height: 22px;
-    padding: 0 14px 4px 12px;
-    border-radius: var(--radius-s);
-  }
-
-  .ds-textarea__textarea:focus {
-    outline: none;
-  }
-
-  .ds-textarea__textarea:focus + .ds-textarea__text-label,
-  .ds-textarea__textarea:not(:placeholder-shown) + .ds-textarea__text-label {
-    top: 6px;
-    font-size: 13px;
-    line-height: 16px;
-  }
-
-  .ds-textarea__textarea:focus + .ds-textarea__text-label {
-    color: rgb(var(--text-light-rgb) / 0.94);
-  }
-
-  .ds-form__item.is-invalid .ds-textarea__label {
-    background-color: rgb(var(--status-error-rgb) / 0.18);
-    border-color: rgb(var(--status-error-rgb) / 0.58);
-    box-shadow: 0 0 0 3px rgb(var(--status-error-rgb) / 0.24);
-  }
-
-  .ds-form__item.is-invalid .ds-textarea__text-label {
-    color: var(--status-error-text);
-  }
-
-  .ds-checkbox {
-    display: grid;
-    grid-template-columns: 20px minmax(0, 1fr);
-    column-gap: 12px;
-    row-gap: 0;
-    align-items: start;
-  }
-
-  .ds-checkbox__outer {
-    display: block;
-    width: 20px;
-    height: 20px;
-    position: relative;
-    margin-top: 1px;
-  }
-
-  .ds-checkbox__input {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    margin: 0;
-    opacity: 0;
-    cursor: pointer;
-  }
-
-  .ds-checkbox__inner {
-    width: 100%;
-    height: 100%;
-    display: block;
-    border-radius: var(--radius-2xs);
-    border: 1px solid rgb(var(--text-light-rgb) / 0.42);
-    background: rgb(var(--text-light-rgb) / 0.08);
-    box-shadow: inset 0 1px 1px rgb(0 0 0 / 0.2);
-    position: relative;
-    transition:
-      border-color 0.2s ease,
-      box-shadow 0.2s ease,
-      background-color 0.2s ease;
-  }
-
-  .ds-checkbox__inner::after {
-    content: "";
-    position: absolute;
-    left: 6px;
-    top: 2px;
-    width: 5px;
-    height: 10px;
-    border-right: 2px solid #fff;
-    border-bottom: 2px solid #fff;
-    opacity: 0;
-    transform: rotate(45deg) scale(0.8);
-    transition:
-      opacity 0.14s ease,
-      transform 0.14s ease;
-  }
-
-  .ds-checkbox__input:hover + .ds-checkbox__inner {
-    border-color: rgb(var(--text-light-rgb) / 0.58);
-  }
-
-  .ds-checkbox__input:focus-visible + .ds-checkbox__inner {
-    box-shadow: var(--focus-ring);
-  }
-
-  .ds-checkbox__input:checked + .ds-checkbox__inner {
-    background: var(--accent);
-    border-color: var(--accent);
-  }
-
-  .ds-checkbox__input:checked + .ds-checkbox__inner::after {
-    opacity: 1;
-    transform: rotate(45deg) scale(1);
-  }
-
-  .ds-form__item.is-invalid .ds-checkbox__inner {
-    border-color: rgb(var(--status-error-rgb) / 0.9);
-    background: rgb(var(--status-error-rgb) / 0.2);
-    box-shadow: 0 0 0 3px rgb(var(--status-error-rgb) / 0.24);
-  }
-
-  .ds-form__item.is-invalid .ds-checkbox__label {
-    color: var(--status-error-text);
-  }
-
-  .ds-checkbox__label {
-    display: block;
-    min-width: 0;
-    margin: 0;
-    color: rgb(var(--text-light-rgb) / 0.82);
-    font-size: 14px;
-    line-height: 19px;
-    text-wrap: pretty;
-  }
-
-  .ds-checkbox__label .ds-link {
-    white-space: nowrap;
-  }
-
-  .request__submit {
-    width: 100%;
-    margin-top: 2px;
-  }
-
-  .form-attachments {
-    display: block;
-    margin-top: 12px;
-  }
-
-  .form-attachments__text {
-    margin: 0;
-    font-size: 13px;
-    line-height: 1.4;
-    color: var(--muted-on-dark);
-    text-align: left;
-  }
-
-  .ds-link {
-    color: inherit;
-    text-decoration: underline;
-    text-underline-offset: 3px;
-  }
-
-  .request__status {
-    margin: 14px 0 0;
-    color: rgb(var(--text-light-rgb) / 0.9);
-    font-size: 14px;
-    line-height: 1.45;
-  }
-
-  .request__status:empty {
-    display: none;
-  }
-
-  .request__status.is-success,
-  .request__status.is-error {
-    border-radius: var(--radius-xs);
-    border: 1px solid;
-    padding: 9px 12px;
-  }
-
-  .request__status.is-success {
-    color: var(--status-success-text);
-    background: rgb(var(--status-success-rgb) / 0.16);
-    border-color: rgb(var(--status-success-rgb) / 0.4);
-  }
-
-  .request__status.is-error {
-    color: var(--status-error-text);
-    background: rgb(var(--status-error-rgb) / 0.18);
-    border-color: rgb(var(--status-error-rgb) / 0.44);
-  }
-
-  .request__mailto {
-    width: 100%;
-    margin-top: 10px;
-  }
-
-  @media (min-width: 1024px) {
-    .ds-form__title {
-      font-size: 32px;
-      margin-bottom: 14px;
-    }
-
-    .ds-form__description {
-      font-size: 18px;
-      margin-bottom: 18px;
-    }
-
-    .ds-input__text-label,
-    .ds-textarea__text-label {
-      font-size: 17px;
-      line-height: 24px;
-    }
-
-    .ds-input__input,
-    .ds-textarea__textarea,
-    .request__submit {
-      font-size: 17px;
-      line-height: 24px;
-    }
-
-    .ds-input__input_with-label {
-      padding: 22px 14px 7px;
-    }
-  }
-
-  @media (max-width: 980px) {
-    .b-form__wrapper {
-      scroll-margin-top: calc(var(--header-height) + 12px);
-    }
-  }
-
-</style>
