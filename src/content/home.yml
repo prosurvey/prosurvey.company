@@ -10,15 +10,16 @@ assets:
   logo: /images/logo.png
   heroImage: /images/hero.jpeg
   formImage: /images/form-bg.jpeg
-  certifications:
-    - image: /images/cert-nopriz.png
-      title: НОПРИЗ
-      width: 416
-      height: 586
-    - image: /images/cert-iso9001.png
-      title: Сертификат ISO 9001
-      width: 416
-      height: 596
+
+certifications:
+  - image: /images/cert-nopriz.png
+    title: НОПРИЗ
+    width: 416
+    height: 586
+  - image: /images/cert-iso9001.png
+    title: Сертификат ISO 9001
+    width: 416
+    height: 596
 
 theme:
   accent: "#72425C"
@@ -106,7 +107,7 @@ sections:
         label: Я внимательно прочитал Политику конфиденциальности и даю свое согласие на обработку персональных данных
         required: true
     messages:
-      success: Черновик письма подготовлен. Проверьте почтовое приложение и отправьте заявку нам.
+      success: Заявка отправлена. Мы свяжемся с Вами в ближайшее время.
     consentLinks:
       privacy:
         text: Политику конфиденциальности
@@ -136,7 +137,9 @@ sections:
         label: WhatsApp
 
 footer:
-  copyright: "©️2025 ООО «ПроИзыскания». Все права защищены"
+  copyright: |
+    ©️2025 ООО «ПроИзыскания».
+    Все права защищены
   links:
     - text: Политика конфиденциальности
       href: /privacypol
@@ -147,9 +150,7 @@ cookie:
   enabled: true
   acceptText: Понятно
   text: |
-    Этот сайт использует файлы «cookie». Вы можете запретить обработку cookies в настройках браузера.
-    Продолжая пользоваться сайтом, вы даете согласие на использование файлов «cookie».
-    О том, как и для чего мы обрабатываем cookies см. в политике конфиденциальности.
+    Этот сайт использует файлы «cookie». Вы можете запретить обработку cookies в настройках браузера. Продолжая пользоваться сайтом, вы даете согласие на использование файлов «cookie». О том, как и для чего мы обрабатываем cookies см. в политике конфиденциальности.
   link:
     text: Подробнее
     href: /privacypol
