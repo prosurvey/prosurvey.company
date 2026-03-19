@@ -35,10 +35,40 @@ const {
   consentLinks,
 } = Astro.props;
 
-const requestTitle = applyTypographyNbsp(title);
+const requestTitle = title;
 const requestDescription = applyTypographyNbsp(description);
+const requestSubmitText = submitText;
 const successMessage = applyTypographyNbsp(messages.success);
+
+const consentLabelSource = fields.consent.label;
+const consentLabel = applyTypographyNbsp(consentLabelSource);
+const privacyTextSource = consentLinks.privacy.text;
 const termsPrefixText = applyTypographyNbsp(consentLinks.terms.prefix);
+const termsLinkText = consentLinks.terms.text;
+
+const consentLabelLower = consentLabelSource.toLocaleLowerCase("ru-RU");
+const privacyTextLower = privacyTextSource.toLocaleLowerCase("ru-RU");
+const privacyIndex = consentLabelLower.indexOf(privacyTextLower);
+
+const consentParts =
+  privacyIndex >= 0
+    ? {
+        before: applyTypographyNbsp(
+          consentLabelSource.slice(0, privacyIndex).trimEnd(),
+        ),
+        linkText: applyTypographyNbsp(
+          consentLabelSource.slice(
+            privacyIndex,
+            privacyIndex + privacyTextSource.length,
+          ),
+        ),
+        after: applyTypographyNbsp(
+          consentLabelSource
+            .slice(privacyIndex + privacyTextSource.length)
+            .trimStart(),
+        ),
+      }
+    : null;
 ---
 
 <section
@@ -48,98 +78,117 @@ const termsPrefixText = applyTypographyNbsp(consentLinks.terms.prefix);
 >
   <div class="container">
     <div class="request__grid">
-      <div class="request__content">
-        <p class="request__eyebrow">Заявка</p>
+      <div class="request__intro">
+        <p class="request__eyebrow">ЗАЯВКА</p>
         <h2 class="request__title">{requestTitle}</h2>
         <p class="request__description">{requestDescription}</p>
       </div>
 
-      <div class="request__card">
+      <div class="request__form-card">
         <form
           class="request-form"
+          method="post"
+          action="/api/lead"
           data-request-form
           data-success-message={successMessage}
           novalidate
         >
           <input type="hidden" name="source" value="site-form" />
 
-          <div class="request-form__field">
-            <label for={`${id}-name`}>{fields.name.label}</label>
+          <label class="request-form__field">
+            <span>{fields.name.label}</span>
             <input
-              id={`${id}-name`}
-              name="name"
               type="text"
+              name="name"
               autocomplete="name"
               required={fields.name.required}
             />
-          </div>
+          </label>
 
-          <div class="request-form__field">
-            <label for={`${id}-phone`}>{fields.phone.label}</label>
+          <label class="request-form__field">
+            <span>{fields.phone.label}</span>
             <input
-              id={`${id}-phone`}
-              name="phone"
               type="tel"
+              name="phone"
               autocomplete="tel"
               required={fields.phone.required}
             />
-          </div>
+          </label>
 
-          <div class="request-form__field">
-            <label for={`${id}-email`}>{fields.email.label}</label>
+          <label class="request-form__field">
+            <span>{fields.email.label}</span>
             <input
-              id={`${id}-email`}
-              name="email"
               type="email"
+              name="email"
               autocomplete="email"
               required={fields.email.required}
             />
-          </div>
+          </label>
 
-          <div class="request-form__field">
-            <label for={`${id}-company`}>Компания</label>
-            <input
-              id={`${id}-company`}
-              name="company"
-              type="text"
-              autocomplete="organization"
-            />
-          </div>
+          <label class="request-form__field">
+            <span>Компания</span>
+            <input type="text" name="company" autocomplete="organization" />
+          </label>
 
-          <div class="request-form__field">
-            <label for={`${id}-message`}>{fields.message.label}</label>
+          <label class="request-form__field">
+            <span>{fields.message.label}</span>
             <textarea
-              id={`${id}-message`}
               name="message"
-              rows="5"
+              rows="6"
               required={fields.message.required}
             ></textarea>
-          </div>
+          </label>
 
           <label class="request-form__consent">
             <input
-              name="consent"
               type="checkbox"
+              name="consent"
               value="yes"
               required={fields.consent.required}
             />
+
             <span>
-              Я внимательно прочитал
-              <a href={consentLinks.privacy.href} target="_blank" rel="noopener noreferrer">
-                {consentLinks.privacy.text}
-              </a>
-              {" "}и даю свое согласие на обработку персональных данных
+              {
+                consentParts ? (
+                  <>
+                    {consentParts.before}{" "}
+                    <a
+                      href={consentLinks.privacy.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {consentParts.linkText}
+                    </a>
+                    {consentParts.after ? <> {consentParts.after}</> : null}
+                  </>
+                ) : (
+                  <>
+                    {consentLabel}{" "}
+                    <a
+                      href={consentLinks.privacy.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {privacyTextSource}
+                    </a>
+                  </>
+                )
+              }
             </span>
           </label>
 
-          <button type="submit" class="request-form__submit" data-submit-button>
-            {submitText}
+          <button class="request-form__submit" type="submit" data-submit-button>
+            {requestSubmitText}
           </button>
 
           <p class="request-form__terms">
             {termsPrefixText}{" "}
-            <a href={consentLinks.terms.href} target="_blank" rel="noopener noreferrer">
-              {consentLinks.terms.text}
+            <a
+              href={consentLinks.terms.href}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {termsLinkText}
             </a>
           </p>
 
@@ -148,228 +197,260 @@ const termsPrefixText = applyTypographyNbsp(consentLinks.terms.prefix);
       </div>
     </div>
   </div>
-
-  <style>
-    .request {
-      padding: 96px 0;
-      background:
-        linear-gradient(180deg, rgba(24, 24, 24, 0.96), rgba(24, 24, 24, 0.96)),
-        var(--request-bg-image) center / cover no-repeat;
-    }
-
-    .container {
-      width: min(1200px, calc(100% - 32px));
-      margin: 0 auto;
-    }
-
-    .request__grid {
-      display: grid;
-      grid-template-columns: 1fr 1.1fr;
-      gap: 32px;
-      align-items: start;
-    }
-
-    .request__eyebrow {
-      margin: 0 0 12px;
-      color: rgba(255, 255, 255, 0.72);
-      font-size: 14px;
-      line-height: 1.2;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-
-    .request__title {
-      margin: 0 0 16px;
-      color: #fff;
-      font-size: clamp(32px, 4vw, 56px);
-      line-height: 1;
-    }
-
-    .request__description {
-      margin: 0;
-      color: rgba(255, 255, 255, 0.84);
-      font-size: 18px;
-      line-height: 1.5;
-      max-width: 560px;
-    }
-
-    .request__card {
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 28px;
-      background: rgba(20, 20, 20, 0.8);
-      backdrop-filter: blur(16px);
-      padding: 24px;
-    }
-
-    .request-form {
-      display: grid;
-      gap: 16px;
-    }
-
-    .request-form__field {
-      display: grid;
-      gap: 8px;
-    }
-
-    .request-form__field label,
-    .request-form__terms,
-    .request-form__consent {
-      color: rgba(255, 255, 255, 0.84);
-      font-size: 14px;
-      line-height: 1.5;
-    }
-
-    .request-form__field input,
-    .request-form__field textarea {
-      width: 100%;
-      border: 1px solid rgba(255, 255, 255, 0.16);
-      border-radius: 18px;
-      background: rgba(255, 255, 255, 0.04);
-      color: #fff;
-      padding: 16px 18px;
-      font: inherit;
-      outline: none;
-      resize: vertical;
-      box-sizing: border-box;
-    }
-
-    .request-form__field input:focus,
-    .request-form__field textarea:focus {
-      border-color: rgba(114, 66, 92, 0.9);
-      box-shadow: 0 0 0 3px rgba(114, 66, 92, 0.18);
-    }
-
-    .request-form__consent {
-      display: flex;
-      gap: 12px;
-      align-items: flex-start;
-    }
-
-    .request-form__consent input {
-      margin-top: 3px;
-      flex: 0 0 auto;
-    }
-
-    .request-form__consent a,
-    .request-form__terms a {
-      color: #fff;
-      text-decoration: underline;
-      text-underline-offset: 3px;
-    }
-
-    .request-form__submit {
-      width: 100%;
-      border: 0;
-      border-radius: 22px;
-      padding: 20px 24px;
-      background: #72425c;
-      color: #fff;
-      font: inherit;
-      font-size: 20px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: opacity 0.2s ease;
-    }
-
-    .request-form__submit:disabled {
-      cursor: wait;
-      opacity: 0.72;
-    }
-
-    .request-form__status {
-      border-radius: 18px;
-      padding: 18px 20px;
-      font-size: 16px;
-      line-height: 1.5;
-    }
-
-    .request-form__status.is-success {
-      border: 1px solid rgba(37, 179, 105, 0.45);
-      background: rgba(20, 72, 44, 0.32);
-      color: #e8fff1;
-    }
-
-    .request-form__status.is-error {
-      border: 1px solid rgba(255, 107, 107, 0.4);
-      background: rgba(90, 20, 20, 0.28);
-      color: #ffe9e9;
-    }
-
-    @media (max-width: 900px) {
-      .request {
-        padding: 72px 0;
-      }
-
-      .request__grid {
-        grid-template-columns: 1fr;
-      }
-    }
-  </style>
-
-  <script>
-    (() => {
-      const root = document.currentScript?.closest("section");
-      if (!root) return;
-
-      const form = root.querySelector("[data-request-form]");
-      const status = root.querySelector("[data-status]");
-      const submitButton = root.querySelector("[data-submit-button]");
-
-      if (!(form instanceof HTMLFormElement)) return;
-      if (!(status instanceof HTMLElement)) return;
-      if (!(submitButton instanceof HTMLButtonElement)) return;
-
-      const successMessage =
-        form.getAttribute("data-success-message") ||
-        "Заявка отправлена. Мы свяжемся с Вами в ближайшее время.";
-
-      const errorMessage =
-        "Не удалось отправить заявку. Попробуйте еще раз или свяжитесь с нами по телефону.";
-
-      const setStatus = (type, message) => {
-        status.hidden = false;
-        status.textContent = message;
-        status.classList.remove("is-success", "is-error");
-        status.classList.add(type === "success" ? "is-success" : "is-error");
-      };
-
-      form.addEventListener("submit", async (event) => {
-        event.preventDefault();
-
-        if (!form.reportValidity()) return;
-
-        submitButton.disabled = true;
-        const initialText = submitButton.textContent ?? "";
-        submitButton.textContent = "Отправляем...";
-
-        try {
-          const formData = new FormData(form);
-          const payload = Object.fromEntries(formData.entries());
-
-          const response = await fetch("/api/lead", {
-            method: "POST",
-            headers: {
-              "content-type": "application/json",
-            },
-            body: JSON.stringify(payload),
-          });
-
-          const data = await response.json().catch(() => null);
-
-          if (!response.ok || !data?.ok) {
-            throw new Error(data?.error || "submit_failed");
-          }
-
-          form.reset();
-          setStatus("success", successMessage);
-        } catch (error) {
-          console.error(error);
-          setStatus("error", errorMessage);
-        } finally {
-          submitButton.disabled = false;
-          submitButton.textContent = initialText;
-        }
-      });
-    })();
-  </script>
 </section>
+
+<style>
+  .request {
+    position: relative;
+    overflow: hidden;
+    background:
+      linear-gradient(
+        180deg,
+        rgba(10, 12, 18, 0.84) 0%,
+        rgba(10, 12, 18, 0.9) 100%
+      ),
+      var(--request-bg-image) center / cover no-repeat;
+  }
+
+  .request::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      linear-gradient(90deg, rgba(0, 0, 0, 0.32) 0%, rgba(0, 0, 0, 0.1) 50%, rgba(0, 0, 0, 0.32) 100%);
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    width: min(1220px, calc(100% - 48px));
+    margin: 0 auto;
+  }
+
+  .request__grid {
+    display: grid;
+    grid-template-columns: minmax(280px, 1fr) minmax(360px, 540px);
+    gap: 48px;
+    align-items: start;
+    padding: 56px 0 68px;
+  }
+
+  .request__intro {
+    padding-top: 44px;
+  }
+
+  .request__eyebrow {
+    margin: 0 0 16px;
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 14px;
+    line-height: 1;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .request__title {
+    margin: 0 0 20px;
+    color: #fff;
+    font-size: clamp(46px, 5vw, 72px);
+    line-height: 0.92;
+    letter-spacing: -0.03em;
+  }
+
+  .request__description {
+    max-width: 540px;
+    margin: 0;
+    color: rgba(255, 255, 255, 0.84);
+    font-size: 20px;
+    line-height: 1.45;
+  }
+
+  .request__form-card {
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 32px;
+    background: rgba(8, 10, 16, 0.72);
+    backdrop-filter: blur(8px);
+    padding: 28px 28px 24px;
+    box-shadow: 0 20px 80px rgba(0, 0, 0, 0.22);
+  }
+
+  .request-form {
+    display: grid;
+    gap: 18px;
+  }
+
+  .request-form__field {
+    display: grid;
+    gap: 10px;
+  }
+
+  .request-form__field > span,
+  .request-form__terms,
+  .request-form__consent {
+    color: rgba(255, 255, 255, 0.88);
+    font-size: 16px;
+    line-height: 1.35;
+  }
+
+  .request-form__field input,
+  .request-form__field textarea {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.04);
+    color: #fff;
+    padding: 18px 20px;
+    font: inherit;
+    outline: none;
+    resize: vertical;
+  }
+
+  .request-form__field textarea {
+    min-height: 180px;
+  }
+
+  .request-form__field input:focus,
+  .request-form__field textarea:focus {
+    border-color: rgba(114, 66, 92, 1);
+    box-shadow: 0 0 0 3px rgba(114, 66, 92, 0.2);
+  }
+
+  .request-form__consent {
+    display: grid;
+    grid-template-columns: 18px 1fr;
+    gap: 12px;
+    align-items: start;
+  }
+
+  .request-form__consent input {
+    margin: 3px 0 0;
+    width: 14px;
+    height: 14px;
+  }
+
+  .request-form__consent a,
+  .request-form__terms a {
+    color: #fff;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .request-form__submit {
+    width: 100%;
+    border: 0;
+    border-radius: 24px;
+    padding: 22px 24px;
+    background: #824c6c;
+    color: #fff;
+    font: inherit;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+  }
+
+  .request-form__submit:disabled {
+    opacity: 0.72;
+    cursor: wait;
+  }
+
+  .request-form__terms {
+    margin: 4px 0 0;
+  }
+
+  .request-form__status {
+    border-radius: 18px;
+    padding: 18px 20px;
+    font-size: 16px;
+    line-height: 1.45;
+  }
+
+  .request-form__status.is-success {
+    border: 1px solid rgba(37, 179, 105, 0.45);
+    background: rgba(20, 72, 44, 0.32);
+    color: #e8fff1;
+  }
+
+  .request-form__status.is-error {
+    border: 1px solid rgba(255, 107, 107, 0.4);
+    background: rgba(90, 20, 20, 0.28);
+    color: #ffe9e9;
+  }
+
+  @media (max-width: 980px) {
+    .request__grid {
+      grid-template-columns: 1fr;
+      gap: 28px;
+      padding: 44px 0 56px;
+    }
+
+    .request__intro {
+      padding-top: 0;
+    }
+  }
+</style>
+
+<script>
+  const form = document.querySelector("[data-request-form]");
+  const status = document.querySelector("[data-status]");
+  const submitButton = document.querySelector("[data-submit-button]");
+
+  if (
+    form instanceof HTMLFormElement &&
+    status instanceof HTMLElement &&
+    submitButton instanceof HTMLButtonElement
+  ) {
+    const successMessage =
+      form.getAttribute("data-success-message") ||
+      "Заявка отправлена. Мы свяжемся с Вами в ближайшее время.";
+
+    const errorMessage =
+      "Не удалось отправить заявку. Попробуйте еще раз или свяжитесь с нами по телефону.";
+
+    const setStatus = (type, message) => {
+      status.hidden = false;
+      status.textContent = message;
+      status.classList.remove("is-success", "is-error");
+      status.classList.add(type === "success" ? "is-success" : "is-error");
+    };
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      if (!form.reportValidity()) return;
+
+      submitButton.disabled = true;
+      const initialText = submitButton.textContent ?? "";
+      submitButton.textContent = "Отправляем...";
+
+      try {
+        const formData = new FormData(form);
+        const payload = Object.fromEntries(formData.entries());
+
+        const response = await fetch("/api/lead", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await response.json().catch(() => null);
+
+        if (!response.ok || !data?.ok) {
+          throw new Error(data?.error || "submit_failed");
+        }
+
+        form.reset();
+        setStatus("success", successMessage);
+      } catch (error) {
+        console.error(error);
+        setStatus("error", errorMessage);
+      } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = initialText;
+      }
+    });
+  }
+</script>
