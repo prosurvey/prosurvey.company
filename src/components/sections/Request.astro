@@ -29,6 +29,7 @@ const consentParts = fields.consent.label.includes(consentMarker)
 <section id={id} class="section request">
   <img class="request__bg" src={imageHref} alt="" loading="lazy" decoding="async" />
   <div class="request__overlay"></div>
+
   <div class="container request__inner">
     <div class="request__copy">
       <p class="eyebrow">Заявка</p>
@@ -36,41 +37,82 @@ const consentParts = fields.consent.label.includes(consentMarker)
       <p class="lead">{description}</p>
     </div>
 
-    <form class="request__form card" data-request-form method="post" action="#">
+    <form
+      class="request__form card"
+      data-request-form
+      method="post"
+      action="/api/lead"
+      novalidate
+    >
+      <input type="hidden" name="source" value="site-form" />
+
       <div class="request__grid">
         <label class="field">
           <span class="field__label">{fields.name.label}</span>
-          <input class="field__input" type="text" name="name" autocomplete="name" required={fields.name.required} />
+          <input
+            class="field__input"
+            type="text"
+            name="name"
+            autocomplete="name"
+            required={fields.name.required}
+          />
         </label>
 
         <label class="field">
           <span class="field__label">{fields.phone.label}</span>
-          <input class="field__input" type="tel" name="phone" autocomplete="tel" />
+          <input
+            class="field__input"
+            type="tel"
+            name="phone"
+            autocomplete="tel"
+            required={fields.phone.required}
+          />
         </label>
 
         <label class="field field--full">
           <span class="field__label">{fields.email.label}</span>
-          <input class="field__input" type="email" name="email" autocomplete="email" required={fields.email.required} />
+          <input
+            class="field__input"
+            type="email"
+            name="email"
+            autocomplete="email"
+            required={fields.email.required}
+          />
         </label>
 
         <label class="field field--full">
           <span class="field__label">{fields.message.label}</span>
-          <textarea class="field__textarea" name="message" rows="4"></textarea>
+          <textarea
+            class="field__textarea"
+            name="message"
+            rows="4"
+            required={fields.message.required}
+          ></textarea>
         </label>
 
         <label class="consent field--full">
-          <input class="consent__checkbox" type="checkbox" name="consent" required={fields.consent.required} />
+          <input
+            class="consent__checkbox"
+            type="checkbox"
+            name="consent"
+            value="yes"
+            required={fields.consent.required}
+          />
           <span class="consent__text">
             {consentParts ? (
               <>
                 {consentParts[0]}
-                <a class="consent__link" href={consentLinks.privacy.href}>{consentLinks.privacy.text}</a>
+                <a class="consent__link" href={consentLinks.privacy.href}>
+                  {consentLinks.privacy.text}
+                </a>
                 {consentParts[1]}
               </>
             ) : (
               <>
                 {fields.consent.label}{" "}
-                <a class="consent__link" href={consentLinks.privacy.href}>{consentLinks.privacy.text}</a>
+                <a class="consent__link" href={consentLinks.privacy.href}>
+                  {consentLinks.privacy.text}
+                </a>
               </>
             )}
           </span>
@@ -78,26 +120,97 @@ const consentParts = fields.consent.label.includes(consentMarker)
       </div>
 
       <div class="request__actions">
-        <button class="btn btn-primary request__submit" type="submit">{submitText}</button>
+        <button class="btn btn-primary request__submit" type="submit" data-request-submit>
+          {submitText}
+        </button>
+
         <p class="request__legal">
           {consentLinks.terms.prefix}{" "}
-          <a class="request__legal-link" href={consentLinks.terms.href}>{consentLinks.terms.text}</a>
+          <a class="request__legal-link" href={consentLinks.terms.href}>
+            {consentLinks.terms.text}
+          </a>
         </p>
-        <p class="request__status" data-request-status role="status" aria-live="polite"></p>
+
+        <p
+          class="request__status"
+          data-request-status
+          role="status"
+          aria-live="polite"
+          hidden
+        ></p>
       </div>
     </form>
   </div>
 
   <script is:inline>
     {String.raw`
-      const form = document.querySelector('[data-request-form]');
-      const statusEl = document.querySelector('[data-request-status]');
-      if (form && statusEl) {
-        form.addEventListener('submit', (event) => {
+      (() => {
+        const form = document.querySelector('[data-request-form]');
+        const statusEl = document.querySelector('[data-request-status]');
+        const submitButton = document.querySelector('[data-request-submit]');
+
+        if (
+          !(form instanceof HTMLFormElement) ||
+          !(statusEl instanceof HTMLElement) ||
+          !(submitButton instanceof HTMLButtonElement)
+        ) {
+          return;
+        }
+
+        const SUCCESS_MESSAGE = 'Заявка отправлена. Мы свяжемся с Вами в ближайшее время.';
+        const ERROR_MESSAGE = 'Не удалось отправить заявку. Попробуйте еще раз.';
+        const ERROR_REQUIRED = 'Заполните обязательные поля.';
+
+        const setStatus = (message, type) => {
+          statusEl.hidden = false;
+          statusEl.textContent = message;
+          statusEl.classList.remove('request__status--success', 'request__status--error');
+          statusEl.classList.add(type === 'success' ? 'request__status--success' : 'request__status--error');
+        };
+
+        form.addEventListener('submit', async (event) => {
           event.preventDefault();
-          statusEl.textContent = 'Форма пока в режиме заглушки. Мы подключим CRM следующим шагом.';
+
+          if (!form.reportValidity()) {
+            setStatus(ERROR_REQUIRED, 'error');
+            return;
+          }
+
+          const initialButtonText = submitButton.textContent || '';
+          submitButton.disabled = true;
+          submitButton.textContent = 'Отправляем...';
+          statusEl.hidden = true;
+          statusEl.textContent = '';
+
+          try {
+            const formData = new FormData(form);
+            const payload = Object.fromEntries(formData.entries());
+
+            const response = await fetch('/api/lead', {
+              method: 'POST',
+              headers: {
+                'content-type': 'application/json'
+              },
+              body: JSON.stringify(payload)
+            });
+
+            const result = await response.json().catch(() => null);
+
+            if (!response.ok || !result || result.ok !== true) {
+              throw new Error((result && result.error) || 'submit_failed');
+            }
+
+            form.reset();
+            setStatus(SUCCESS_MESSAGE, 'success');
+          } catch (error) {
+            console.error(error);
+            setStatus(ERROR_MESSAGE, 'error');
+          } finally {
+            submitButton.disabled = false;
+            submitButton.textContent = initialButtonText;
+          }
         });
-      }
+      })();
     `}
   </script>
 </section>
@@ -176,6 +289,7 @@ const consentParts = fields.consent.label.includes(consentMarker)
     padding: 12px 12px;
     font: inherit;
     outline: none;
+    box-sizing: border-box;
   }
 
   .field__textarea {
@@ -201,6 +315,7 @@ const consentParts = fields.consent.label.includes(consentMarker)
     width: 18px;
     height: 18px;
     accent-color: var(--accent);
+    flex: 0 0 auto;
   }
 
   .consent__text {
@@ -224,6 +339,11 @@ const consentParts = fields.consent.label.includes(consentMarker)
     width: 100%;
   }
 
+  .request__submit:disabled {
+    opacity: 0.7;
+    cursor: wait;
+  }
+
   .request__legal {
     margin: 0;
     color: var(--muted-on-dark);
@@ -238,8 +358,22 @@ const consentParts = fields.consent.label.includes(consentMarker)
 
   .request__status {
     margin: 0;
-    color: rgba(248, 249, 250, 0.92);
     font-size: 14px;
+    line-height: 1.4;
+    padding: 10px 12px;
+    border-radius: 12px;
+  }
+
+  .request__status--success {
+    color: #d9ffe8;
+    background: rgba(28, 78, 49, 0.5);
+    border: 1px solid rgba(69, 179, 108, 0.45);
+  }
+
+  .request__status--error {
+    color: #ffe1e1;
+    background: rgba(102, 34, 34, 0.45);
+    border: 1px solid rgba(220, 90, 90, 0.4);
   }
 
   @media (max-width: 980px) {
@@ -248,4 +382,3 @@ const consentParts = fields.consent.label.includes(consentMarker)
     }
   }
 </style>
-
